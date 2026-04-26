@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromptVault — Local-first prompt manager for AI builders</title>
+<meta name="description" content="Stop losing your best prompts. PromptVault is a free, local-first prompt manager with variable templates, a live test panel, and zero cloud dependency.">
+<meta property="og:title" content="PromptVault — Your prompts. Your machine.">
+<meta property="og:description" content="Free. Local. One HTML file. No account, no cloud, no one reading your work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23d4a86a%22 font-family=%22Georgia,serif%22 font-style=%22italic%22>P</text></svg>">
+
+<style>
+:root {
+  --bg:        #0d0c0a;
+  --bg-2:      #131109;
+  --bg-3:      #18160f;
+  --bg-card:   #1c1912;
+  --border:    #272318;
+  --border-2:  #332d1f;
+  --text:      #f0ebe0;
+  --text-2:    #9e9484;
+  --text-3:    #5a5347;
+  --gold:      #d4a86a;
+  --gold-2:    #e8c08a;
+  --gold-dim:  rgba(212,168,106,.1);
+  --rose:      #e0a0a4;
+  --mint:      #88c4a0;
+  --ff-d: 'Fraunces', serif;
+  --ff-b: 'Geist', sans-serif;
+  --ff-m: 'JetBrains Mono', monospace;
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--ff-b);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+
+/* Layout */
+.wrap  {max-width:1140px;margin:0 auto;padding:0 36px;position:relative;z-index:2}
+.wrap-s{max-width:780px; margin:0 auto;padding:0 36px;position:relative;z-index:2}
+
+/* Progress */
+#progress{
+  position:fixed;top:0;left:0;height:2px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2));
+  width:0%;z-index:200;transition:width .05s linear;
+  box-shadow:0 0 10px rgba(212,168,106,.5);
+}
+
+/* ---- NAV ---- */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:22px 0;
+  transition:padding .4s var(--ease),background .4s ease,border-color .4s ease;
+  border-bottom:1px solid transparent;
+}
+.nav.compact{
+  padding:14px 0;
+  background:rgba(13,12,10,.85);
+  backdrop-filter:blur(18px) saturate(1.3);
+  border-bottom-color:var(--border);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:baseline;gap:2px;font-family:var(--ff-d)}
+.logo-p{font-size:24px;font-style:italic;font-weight:400;color:var(--gold);line-height:1}
+.logo-rest{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{
+  font-size:13px;color:var(--text-2);
+  position:relative;transition:color .2s ease;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-2px;left:0;
+  width:0;height:1px;background:var(--gold);
+  transition:width .3s var(--ease);
+}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{
+  background:var(--gold);color:#1a1208 !important;font-weight:600 !important;
+  padding:9px 18px;border-radius:7px;font-size:13px !important;
+  transition:background .2s ease, transform .1s ease !important;
+}
+.nav-cta::after{display:none !important}
+.nav-cta:hover{background:var(--gold-2) !important;transform:translateY(-1px)}
+@media(max-width:640px){.nav-links>a:not(.nav-cta){display:none}}
+
+/* ---- HERO ---- */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:140px 0 100px;position:relative;overflow:hidden;
+}
+.hero-glow{
+  position:absolute;top:-10%;left:50%;transform:translateX(-50%);
+  width:1000px;height:700px;
+  background:radial-gradient(ellipse at center,rgba(212,168,106,.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--ff-m);font-size:11px;text-transform:uppercase;
+  letter-spacing:.22em;color:var(--gold);margin-bottom:36px;
+  opacity:0;animation:fadeUp .8s var(--ease) .1s forwards;
+}
+.eyebrow-line{width:22px;height:1px;background:var(--gold);opacity:.5}
+
+.hero-h1{
+  font-family:var(--ff-d);
+  font-size:clamp(52px,7.5vw,96px);
+  font-weight:400;line-height:.97;letter-spacing:-.04em;
+  margin-bottom:32px;max-width:880px;
+}
+.hero-h1 .line{display:block;overflow:hidden}
+.hero-h1 .line-inner{
+  display:block;opacity:0;transform:translateY(105%);
+}
+.hero-h1 .line:nth-child(1) .line-inner{animation:lineUp .9s var(--ease) .2s  forwards}
+.hero-h1 .line:nth-child(2) .line-inner{animation:lineUp .9s var(--ease) .35s forwards}
+.hero-h1 .line:nth-child(3) .line-inner{animation:lineUp .9s var(--ease) .5s  forwards}
+.hero-h1 em{font-style:italic;font-weight:300;color:var(--gold)}
+
+.hero-p{
+  font-size:clamp(16px,1.5vw,18px);color:var(--text-2);
+  max-width:540px;line-height:1.75;margin-bottom:44px;
+  opacity:0;animation:fadeUp .8s var(--ease) .65s forwards;
+}
+.hero-p strong{color:var(--text);font-weight:500}
+
+.hero-btns{
+  display:flex;gap:12px;flex-wrap:wrap;
+  opacity:0;animation:fadeUp .8s var(--ease) .78s forwards;
+}
+.btn-gold{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--gold);color:#1a1208;font-weight:600;font-size:14px;
+  padding:14px 24px;border-radius:8px;
+  transition:background .2s ease,transform .15s ease,box-shadow .2s ease;
+}
+.btn-gold:hover{background:var(--gold-2);transform:translateY(-2px);box-shadow:0 14px 36px rgba(212,168,106,.28)}
+.btn-line{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--text-2);font-size:14px;padding:14px 24px;
+  border-radius:8px;border:1px solid var(--border-2);background:var(--bg-card);
+  transition:all .2s ease;
+}
+.btn-line:hover{color:var(--text);border-color:var(--text-3);background:var(--bg-3)}
+
+.hero-trust{
+  display:flex;gap:28px;margin-top:32px;flex-wrap:wrap;
+  opacity:0;animation:fadeUp .8s var(--ease) .9s forwards;
+}
+.trust-item{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--ff-m);font-size:11px;
+  text-transform:uppercase;letter-spacing:.16em;color:var(--text-3);
+}
+.trust-dot{
+  width:5px;height:5px;border-radius:50%;
+  animation:pulse 2s ease-in-out infinite;
+}
+.trust-dot.a{background:var(--mint);box-shadow:0 0 6px var(--mint)}
+.trust-dot.b{background:var(--gold);box-shadow:0 0 6px var(--gold);animation-delay:.5s}
+.trust-dot.c{background:var(--rose);box-shadow:0 0 6px var(--rose);animation-delay:1s}
+
+/* ---- MOCKUP ---- */
+.mockup-sec{padding:0 0 120px;position:relative}
+.mockup-outer{
+  opacity:0;transform:translateY(44px) rotateX(5deg);
+  transform-origin:center top;perspective:2400px;
+  transition:opacity 1s var(--ease),transform 1.1s var(--ease);
+}
+.mockup-outer.in{opacity:1;transform:translateY(0) rotateX(0)}
+.mockup-glow{
+  position:absolute;inset:-80px;
+  background:radial-gradient(ellipse at 50% 20%,rgba(212,168,106,.09) 0%,transparent 65%);
+  pointer-events:none;z-index:-1;
+}
+.window{
+  background:var(--bg-2);border:1px solid var(--border-2);border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 0 0 1px rgba(212,168,106,.06),0 48px 96px rgba(0,0,0,.65),0 24px 48px rgba(0,0,0,.4);
+}
+.win-bar{
+  background:var(--bg);border-bottom:1px solid var(--border);
+  padding:12px 18px;display:flex;align-items:center;gap:12px;
+}
+.win-dots{display:flex;gap:7px}
+.win-dot{width:11px;height:11px;border-radius:50%}
+.win-dot:nth-child(1){background:#e06c6f}
+.win-dot:nth-child(2){background:var(--gold)}
+.win-dot:nth-child(3){background:var(--mint)}
+.win-url{
+  flex:1;margin:0 20px;padding:5px 14px;
+  background:var(--bg-3);border-radius:6px;
+  font-family:var(--ff-m);font-size:11px;color:var(--text-3);
+  text-align:center;letter-spacing:.04em;
+}
+.win-url span{color:var(--text-2)}
+.win-body{display:grid;grid-template-columns:210px 1fr;height:420px}
+
+.win-sb{
+  background:var(--bg-2);border-right:1px solid var(--border);
+  padding:18px 12px;overflow:hidden;
+}
+.wsb-brand{
+  font-family:var(--ff-d);font-size:16px;font-weight:500;
+  letter-spacing:-.02em;padding:2px 8px 18px;
+  border-bottom:1px solid var(--border);margin-bottom:14px;
+}
+.wsb-brand em{font-style:italic;color:var(--gold);font-weight:400}
+.wsb-btn{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  background:var(--gold);color:#1a1208;font-weight:600;
+  font-size:11.5px;padding:8px 10px;border-radius:7px;margin-bottom:18px;
+}
+.wsb-sec{
+  font-family:var(--ff-m);font-size:9px;text-transform:uppercase;
+  letter-spacing:.2em;color:var(--text-3);padding:0 8px;margin:14px 0 5px;
+}
+.wsb-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 10px;border-radius:6px;font-size:12.5px;
+  color:var(--text-2);margin-bottom:1px;
+}
+.wsb-item.act{background:var(--gold-dim);color:var(--gold)}
+.wsb-dot{width:6px;height:6px;border-radius:50%;margin-right:8px;display:inline-block}
+.wsb-n{font-family:var(--ff-m);font-size:10px;opacity:.6}
+
+.win-main{background:var(--bg);padding:20px;overflow:hidden;position:relative}
+.wm-head{display:flex;align-items:center;margin-bottom:18px;gap:14px}
+.wm-title{font-family:var(--ff-d);font-size:26px;font-weight:400;letter-spacing:-.025em}
+.wm-title em{font-style:italic;color:var(--gold);font-weight:300}
+.wm-search{
+  margin-left:auto;padding:7px 12px;
+  background:var(--bg-3);border:1px solid var(--border);border-radius:7px;
+  font-family:var(--ff-m);font-size:11px;color:var(--text-3);
+  width:190px;display:flex;align-items:center;gap:8px;
+}
+.wm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.wm-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:10px;padding:14px 14px 12px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s ease,transform .25s var(--ease);
+}
+.wm-card:hover{transform:translateY(-2px);border-color:var(--border-2)}
+.wm-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.wm-card.w::before{background:var(--rose)}
+.wm-card.c::before{background:var(--mint)}
+.wm-card.m::before{background:var(--gold)}
+.wm-badge{
+  font-family:var(--ff-m);font-size:8.5px;text-transform:uppercase;
+  letter-spacing:.15em;padding:2px 7px;border-radius:3px;
+  display:inline-block;margin-bottom:7px;font-weight:500;
+}
+.wm-badge.w{background:rgba(224,160,164,.12);color:var(--rose)}
+.wm-badge.c{background:rgba(136,196,160,.12);color:var(--mint)}
+.wm-badge.m{background:rgba(212,168,106,.12);color:var(--gold)}
+.wm-ct{font-family:var(--ff-d);font-size:15px;font-weight:500;letter-spacing:-.015em;line-height:1.2;margin-bottom:6px}
+.wm-prev{
+  font-family:var(--ff-m);font-size:10.5px;color:var(--text-2);line-height:1.55;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.wm-var{color:var(--gold)}
+
+.win-float{
+  position:absolute;bottom:18px;right:18px;width:258px;
+  background:var(--bg-2);border:1px solid var(--border-2);border-radius:11px;padding:16px;
+  box-shadow:0 20px 48px rgba(0,0,0,.5),0 0 0 1px rgba(212,168,106,.06);
+  animation:float 4s ease-in-out infinite;
+}
+.wf-title{font-family:var(--ff-d);font-size:14px;font-weight:500;margin-bottom:12px}
+.wf-title em{font-style:italic;color:var(--gold);font-weight:400}
+.wf-row{display:grid;grid-template-columns:68px 1fr;gap:8px;align-items:center;margin-bottom:6px}
+.wf-lbl{font-family:var(--ff-m);font-size:9.5px;color:var(--gold)}
+.wf-inp{
+  background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  padding:3px 7px;font-family:var(--ff-m);font-size:9.5px;color:var(--text);
+}
+.wf-out{
+  margin-top:10px;padding:9px 10px;
+  background:var(--bg);border:1px solid var(--gold);border-radius:6px;
+  font-family:var(--ff-m);font-size:9.5px;color:var(--text);line-height:1.6;
+}
+.wf-fill{color:var(--mint)}
+
+@media(max-width:760px){
+  .win-body{grid-template-columns:1fr;height:auto}
+  .win-sb{display:none}
+  .wm-grid{grid-template-columns:1fr}
+  .win-float{display:none}
+}
+
+/* ---- DIVIDER ---- */
+.divider{
+  width:1px;height:80px;
+  background:linear-gradient(to bottom,transparent,var(--border-2),transparent);
+  margin:0 auto;
+}
+
+/* ---- SECTION CHROME ---- */
+.sec-tag{
+  font-family:var(--ff-m);font-size:10px;text-transform:uppercase;
+  letter-spacing:.22em;color:var(--text-3);
+  display:flex;align-items:center;gap:10px;margin-bottom:24px;
+}
+.sec-tag::before{content:'';width:20px;height:1px;background:var(--border-2)}
+.sec-h2{
+  font-family:var(--ff-d);font-size:clamp(36px,5vw,62px);
+  font-weight:400;line-height:1.04;letter-spacing:-.035em;margin-bottom:20px;
+}
+.sec-h2 em{font-style:italic;color:var(--gold);font-weight:300}
+.sec-p{font-size:17px;color:var(--text-2);line-height:1.75;max-width:560px}
+
+/* ---- PROBLEM ---- */
+.problem-sec{padding:120px 0 80px}
+.problem-cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;margin-top:60px;
+}
+.prob-card{
+  background:var(--bg);padding:44px 36px;
+  position:relative;overflow:hidden;
+  transition:background .3s ease;
+}
+.prob-card::after{
+  content:'';position:absolute;bottom:0;left:36px;
+  width:0;height:1px;background:var(--gold);
+  transition:width .4s var(--ease);
+}
+.prob-card:hover{background:var(--bg-card)}
+.prob-card:hover::after{width:calc(100% - 72px)}
+.prob-n{
+  font-family:var(--ff-d);font-style:italic;font-size:52px;
+  font-weight:300;color:var(--gold);opacity:.18;line-height:1;margin-bottom:24px;
+  transition:opacity .3s ease;
+}
+.prob-card:hover .prob-n{opacity:.4}
+.prob-title{
+  font-family:var(--ff-d);font-size:22px;font-weight:500;
+  letter-spacing:-.02em;line-height:1.25;margin-bottom:12px;
+}
+.prob-title em{font-style:italic;color:var(--gold)}
+.prob-desc{font-size:14px;color:var(--text-2);line-height:1.7}
+@media(max-width:760px){.problem-cards{grid-template-columns:1fr}}
+
+/* ---- FEATURES ---- */
+.feat-sec{padding:80px 0 120px}
+.feat-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:16px;margin-top:60px;
+}
+.feat-wide{grid-column:span 2}
+.feat-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:14px;
+  padding:36px 34px;position:relative;overflow:hidden;
+  transition:border-color .3s ease,transform .3s var(--ease);
+}
+.feat-card:hover{border-color:var(--border-2);transform:translateY(-3px)}
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(212,168,106,.05) 0%,transparent 55%);
+  opacity:0;transition:opacity .3s ease;pointer-events:none;
+}
+.feat-card:hover::before{opacity:1}
+.feat-ico{
+  width:44px;height:44px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:24px;background:var(--gold-dim);color:var(--gold);
+  transition:transform .3s var(--ease);
+}
+.feat-card:hover .feat-ico{transform:scale(1.1) rotate(-4deg)}
+.feat-card.mint .feat-ico{background:rgba(136,196,160,.1);color:var(--mint)}
+.feat-card.rose .feat-ico{background:rgba(224,160,164,.1);color:var(--rose)}
+.feat-h3{
+  font-family:var(--ff-d);font-size:24px;font-weight:500;
+  letter-spacing:-.02em;line-height:1.2;margin-bottom:12px;
+}
+.feat-h3 em{font-style:italic;font-weight:400;color:var(--gold)}
+.feat-card.mint .feat-h3 em{color:var(--mint)}
+.feat-card.rose .feat-h3 em{color:var(--rose)}
+.feat-desc{font-size:14.5px;color:var(--text-2);line-height:1.7}
+.feat-pill{
+  display:inline-block;margin-top:20px;font-family:var(--ff-m);font-size:11.5px;
+  color:var(--gold);padding:6px 12px;background:var(--gold-dim);border-radius:5px;
+}
+.feat-card.mint .feat-pill{color:var(--mint);background:rgba(136,196,160,.1)}
+
+.var-demo{
+  margin-top:28px;display:grid;grid-template-columns:1fr 1px 1fr;
+  background:var(--bg-2);border:1px solid var(--border);border-radius:10px;overflow:hidden;
+}
+.var-demo-col{padding:22px 24px}
+.var-div{background:var(--border)}
+.var-lbl{
+  font-family:var(--ff-m);font-size:9.5px;text-transform:uppercase;
+  letter-spacing:.18em;color:var(--text-3);margin-bottom:12px;
+}
+.var-txt{font-family:var(--ff-m);font-size:13px;line-height:1.75;color:var(--text-2)}
+.var-tok{color:var(--gold);background:rgba(212,168,106,.1);padding:1px 4px;border-radius:3px}
+
+@media(max-width:860px){
+  .feat-grid{grid-template-columns:1fr}
+  .feat-wide{grid-column:span 1}
+  .var-demo{grid-template-columns:1fr}
+  .var-div{display:none}
+}
+
+/* ---- FLOW ---- */
+.flow-sec{padding:80px 0 120px}
+.flow-steps{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;margin-top:60px;
+  border:1px solid var(--border);border-radius:14px;overflow:hidden;
+}
+.flow-step{
+  padding:44px 36px;border-right:1px solid var(--border);
+  background:var(--bg);transition:background .3s ease;position:relative;
+}
+.flow-step:last-child{border-right:none}
+.flow-step:hover{background:var(--bg-card)}
+.flow-n{
+  font-family:var(--ff-d);font-style:italic;font-size:64px;
+  font-weight:300;color:var(--gold);opacity:.15;line-height:1;margin-bottom:28px;
+  transition:opacity .3s ease;
+}
+.flow-step:hover .flow-n{opacity:.35}
+.flow-h3{font-family:var(--ff-d);font-size:22px;font-weight:500;letter-spacing:-.02em;margin-bottom:12px}
+.flow-p{font-size:14px;color:var(--text-2);line-height:1.7}
+.flow-p code{
+  font-family:var(--ff-m);font-size:12px;color:var(--gold);
+  background:var(--gold-dim);padding:1px 5px;border-radius:3px;
+}
+@media(max-width:760px){
+  .flow-steps{grid-template-columns:1fr}
+  .flow-step{border-right:none;border-bottom:1px solid var(--border)}
+  .flow-step:last-child{border-bottom:none}
+}
+
+/* ---- COMPARISON ---- */
+.compare-sec{padding:80px 0 120px}
+.table-wrap{
+  margin-top:60px;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:14px;overflow:hidden;overflow-x:auto;
+}
+table{width:100%;border-collapse:collapse}
+th,td{padding:16px 22px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+thead th{
+  font-family:var(--ff-m);font-size:9.5px;text-transform:uppercase;
+  letter-spacing:.18em;color:var(--text-3);font-weight:400;
+  background:var(--bg-2);padding:18px 22px;
+}
+thead th.us{color:var(--gold)}
+td:first-child{color:var(--text-2)}
+.y{color:var(--mint);font-weight:500}
+.n{color:var(--text-3)}
+.m{color:var(--text-3)}
+td.us{background:rgba(212,168,106,.03)}
+td.us.y{color:var(--gold)}
+
+/* ---- FAQ ---- */
+.faq-sec{padding:80px 0 120px}
+.faq-list{margin-top:56px}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-item:first-child{border-top:1px solid var(--border)}
+.faq-btn{
+  width:100%;padding:26px 0;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  text-align:left;
+}
+.faq-q{
+  font-family:var(--ff-d);font-size:clamp(18px,2vw,22px);
+  font-weight:400;letter-spacing:-.015em;color:var(--text);
+  transition:color .2s ease;
+}
+.faq-btn:hover .faq-q{color:var(--gold)}
+.faq-ico{
+  width:30px;height:30px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:1px solid var(--border-2);
+  color:var(--text-3);font-size:18px;font-weight:300;
+  transition:all .3s var(--ease);font-family:var(--ff-m);
+}
+.faq-item.open .faq-ico{transform:rotate(45deg);border-color:var(--gold);color:var(--gold)}
+.faq-body{overflow:hidden;max-height:0;transition:max-height .4s var(--ease)}
+.faq-ans{
+  padding-bottom:26px;font-size:15px;color:var(--text-2);
+  line-height:1.8;max-width:680px;padding-right:54px;
+}
+.faq-item.open .faq-body{max-height:300px}
+
+/* ---- BRIDGE ---- */
+.bridge-sec{padding:80px 0 120px}
+.bridge-card{
+  background:var(--bg-card);border:1px solid var(--border-2);
+  border-radius:20px;padding:72px;position:relative;overflow:hidden;
+}
+.b-glow-1{
+  position:absolute;top:-140px;right:-140px;width:520px;height:520px;
+  background:radial-gradient(circle,rgba(212,168,106,.09) 0%,transparent 65%);
+  pointer-events:none;
+}
+.b-glow-2{
+  position:absolute;bottom:-100px;left:-100px;width:360px;height:360px;
+  background:radial-gradient(circle,rgba(136,196,160,.05) 0%,transparent 65%);
+  pointer-events:none;
+}
+.bridge-lbl{
+  font-family:var(--ff-m);font-size:10px;text-transform:uppercase;
+  letter-spacing:.22em;color:var(--gold);margin-bottom:22px;opacity:.8;
+}
+.bridge-h2{
+  font-family:var(--ff-d);font-size:clamp(34px,4.5vw,54px);
+  font-weight:400;letter-spacing:-.035em;line-height:1.08;
+  margin-bottom:24px;max-width:600px;
+}
+.bridge-h2 em{font-style:italic;color:var(--gold);font-weight:300}
+.bridge-p{
+  font-size:16.5px;color:var(--text-2);line-height:1.8;
+  max-width:640px;margin-bottom:32px;
+}
+.bridge-p strong{color:var(--text);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px}
+.chip{
+  font-family:var(--ff-m);font-size:11px;color:var(--text-2);
+  padding:5px 12px;border-radius:5px;
+  background:var(--bg-2);border:1px solid var(--border);
+  transition:border-color .2s ease,color .2s ease;
+}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+.bridge-sig{
+  margin-top:32px;padding-top:28px;border-top:1px solid var(--border);
+  font-family:var(--ff-d);font-style:italic;font-size:16px;color:var(--text-2);
+}
+.bridge-sig strong{font-style:normal;color:var(--gold);font-family:var(--ff-d)}
+@media(max-width:700px){.bridge-card{padding:40px 28px}}
+
+/* ---- FINAL CTA ---- */
+.final-sec{padding:60px 0 140px;text-align:center}
+.final-mark{
+  font-family:var(--ff-d);font-style:italic;font-size:128px;
+  font-weight:300;color:var(--gold);line-height:1;opacity:.1;
+  margin-bottom:-16px;user-select:none;
+}
+.final-h2{
+  font-family:var(--ff-d);font-size:clamp(36px,5vw,62px);
+  font-weight:400;letter-spacing:-.035em;line-height:1.1;margin-bottom:20px;
+}
+.final-h2 em{font-style:italic;color:var(--gold);font-weight:300}
+.final-p{font-size:16px;color:var(--text-2);max-width:440px;margin:0 auto 36px;line-height:1.7}
+.final-meta{margin-top:28px;font-family:var(--ff-m);font-size:11px;color:var(--text-3);letter-spacing:.1em}
+
+/* ---- FOOTER ---- */
+.footer{border-top:1px solid var(--border);padding:32px 0}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-left{font-family:var(--ff-m);font-size:11px;color:var(--text-3);letter-spacing:.08em}
+.footer-left span{color:var(--gold)}
+.footer-nav{display:flex;gap:24px}
+.footer-nav a{
+  font-family:var(--ff-m);font-size:11px;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--text-3);transition:color .2s ease;
+}
+.footer-nav a:hover{color:var(--gold)}
+
+/* ---- ANIMATIONS ---- */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes lineUp{
+  from{opacity:0;transform:translateY(105%)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes pulse{
+  0%,100%{opacity:.6;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.4)}
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+/* Scroll reveal */
+.sr{opacity:0;transform:translateY(22px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.sr.sl{transform:translateX(-22px)}
+.sr.sr2{transform:translateX(22px)}
+.sr.visible{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  .sr,.hero-h1 .line-inner,.eyebrow{opacity:1 !important;transform:none !important}
+}
+
+@media(max-width:600px){
+  .wrap,.wrap-s{padding:0 20px}
+  .hero{padding:100px 0 80px}
+  .prob-card,.flow-step{padding:32px 24px}
+  .feat-card{padding:28px 22px}
+  .bridge-card{padding:36px 24px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div id="progress"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-p">P</span>
+      <span class="logo-rest">romptVault</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#flow">Workflow</a>
+      <a href="#faq">FAQ</a>
+      <a href="./promptvault.html" class="nav-cta">Launch App →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap">
+    <div class="eyebrow">
+      <span class="eyebrow-line"></span>
+      PromptVault &nbsp;·&nbsp; Free &nbsp;·&nbsp; Local-first
+    </div>
+    <h1 class="hero-h1">
+      <span class="line"><span class="line-inner">Your prompts.</span></span>
+      <span class="line"><span class="line-inner">Your machine.</span></span>
+      <span class="line"><span class="line-inner"><em>Zero cloud.</em></span></span>
+    </h1>
+    <p class="hero-p">
+      The prompt manager that doesn't need your email address.
+      <strong>Tag, template, and test your prompts</strong> — stored locally,
+      under your control, completely free.
+    </p>
+    <div class="hero-btns">
+      <a href="./promptvault.html" class="btn-gold">
+        Launch PromptVault
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <a href="./promptvault.html" download="promptvault.html" class="btn-line">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Download HTML
+      </a>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-item"><span class="trust-dot a"></span>No account</div>
+      <div class="trust-item"><span class="trust-dot b"></span>No cloud</div>
+      <div class="trust-item"><span class="trust-dot c"></span>Free forever</div>
+    </div>
+  </div>
+</section>
+
+<!-- MOCKUP -->
+<section class="mockup-sec">
+  <div class="wrap">
+    <div class="mockup-outer" id="mockup">
+      <div class="mockup-glow"></div>
+      <div class="window">
+        <div class="win-bar">
+          <div class="win-dots">
+            <span class="win-dot"></span><span class="win-dot"></span><span class="win-dot"></span>
+          </div>
+          <div class="win-url">promptvault.app <span>— your prompt library</span></div>
+          <div style="width:48px"></div>
+        </div>
+        <div class="win-body">
+          <div class="win-sb">
+            <div class="wsb-brand"><em>P</em>romptVault</div>
+            <div class="wsb-btn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              New Prompt
+            </div>
+            <div class="wsb-sec">Browse</div>
+            <div class="wsb-item act">All Prompts <span class="wsb-n">24</span></div>
+            <div class="wsb-item">★ Favorites <span class="wsb-n">7</span></div>
+            <div class="wsb-sec">Categories</div>
+            <div class="wsb-item"><span><span class="wsb-dot" style="background:var(--rose)"></span>Writing</span><span class="wsb-n">9</span></div>
+            <div class="wsb-item"><span><span class="wsb-dot" style="background:var(--mint)"></span>Coding</span><span class="wsb-n">8</span></div>
+            <div class="wsb-item"><span><span class="wsb-dot" style="background:var(--gold)"></span>Marketing</span><span class="wsb-n">7</span></div>
+          </div>
+          <div class="win-main">
+            <div class="wm-head">
+              <div class="wm-title">All <em>prompts</em></div>
+              <div class="wm-search">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                search prompts…
+              </div>
+            </div>
+            <div class="wm-grid">
+              <div class="wm-card w">
+                <span class="wm-badge w">Writing</span>
+                <div class="wm-ct">Blog Post Draft</div>
+                <div class="wm-prev">Write a <span class="wm-var">{{tone}}</span> blog about <span class="wm-var">{{topic}}</span> for <span class="wm-var">{{audience}}</span>…</div>
+              </div>
+              <div class="wm-card c">
+                <span class="wm-badge c">Coding</span>
+                <div class="wm-ct">Code Review</div>
+                <div class="wm-prev">Review this <span class="wm-var">{{language}}</span> code for bugs, perf, and style…</div>
+              </div>
+              <div class="wm-card m">
+                <span class="wm-badge m">Marketing</span>
+                <div class="wm-ct">Cold Email Opener</div>
+                <div class="wm-prev">Write a cold opener for <span class="wm-var">{{product}}</span> targeting <span class="wm-var">{{audience}}</span>…</div>
+              </div>
+              <div class="wm-card w">
+                <span class="wm-badge w">Writing</span>
+                <div class="wm-ct">ELI5 Explainer</div>
+                <div class="wm-prev">Explain <span class="wm-var">{{concept}}</span> simply. One analogy. Under 100 words.</div>
+              </div>
+            </div>
+            <div class="win-float">
+              <div class="wf-title">Test <em>panel</em></div>
+              <div class="wf-row"><span class="wf-lbl">{{tone}}</span><div class="wf-inp">conversational</div></div>
+              <div class="wf-row"><span class="wf-lbl">{{topic}}</span><div class="wf-inp">AI workflows</div></div>
+              <div class="wf-out">Write a <span class="wf-fill">conversational</span> blog about <span class="wf-fill">AI workflows</span> for marketers…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROBLEM -->
+<section class="problem-sec">
+  <div class="wrap">
+    <div class="sec-tag sr">01 — The problem</div>
+    <h2 class="sec-h2 sr d1">You keep losing <em>your best work.</em></h2>
+    <p class="sec-p sr d2">The prompt that tripled your output last month? Three archived chats deep. The template you spent a week refining? Gone when you switched tools. Sound familiar?</p>
+    <div class="problem-cards">
+      <div class="prob-card sr d1">
+        <div class="prob-n">01</div>
+        <h3 class="prob-title">The <em>buried prompt</em></h3>
+        <p class="prob-desc">Your best prompts live in old conversations you'll never scroll back to. Every great result you can't replicate is time and money left behind.</p>
+      </div>
+      <div class="prob-card sr d2">
+        <div class="prob-n">02</div>
+        <h3 class="prob-title">The <em>constant rewrite</em></h3>
+        <p class="prob-desc">You change the tone, the audience, the length — and retype the whole structure every single time. You don't have a creativity problem. You have a storage problem.</p>
+      </div>
+      <div class="prob-card sr d3">
+        <div class="prob-n">03</div>
+        <h3 class="prob-title">The <em>SaaS trade-off</em></h3>
+        <p class="prob-desc">You looked at cloud prompt managers. Then you read their terms of service. Your prompts are your competitive edge — handing them to a stranger's server is optional.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="feat-sec" id="features">
+  <div class="wrap">
+    <div class="sec-tag sr">02 — Features</div>
+    <h2 class="sec-h2 sr d1">Everything you need. <em>Nothing you don't.</em></h2>
+    <p class="sec-p sr d2">Six features, zero bloat. Built for the moment you're mid-workflow and need the right prompt in under three seconds.</p>
+    <div class="feat-grid">
+
+      <div class="feat-card feat-wide mint sr">
+        <div class="feat-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <h3 class="feat-h3">Variable templates — one prompt, <em>infinite uses</em></h3>
+        <p class="feat-desc">Drop <code style="font-family:var(--ff-m);color:var(--mint);font-size:13px;background:rgba(136,196,160,.1);padding:1px 5px;border-radius:3px">{{variables}}</code> anywhere in your prompt. They're auto-detected and turned into a live form you can fill and preview before you copy anything.</p>
+        <div class="var-demo">
+          <div class="var-demo-col">
+            <div class="var-lbl">Static — rewrites every time</div>
+            <div class="var-txt">Write a casual blog post about AI productivity for startup founders. Make it 800 words.</div>
+          </div>
+          <div class="var-div"></div>
+          <div class="var-demo-col">
+            <div class="var-lbl">Templated — reuse forever</div>
+            <div class="var-txt">Write a <span class="var-tok">{{tone}}</span> blog about <span class="var-tok">{{topic}}</span> for <span class="var-tok">{{audience}}</span>. Make it <span class="var-tok">{{length}}</span> words.</div>
+          </div>
+        </div>
+        <span class="feat-pill">Auto-detected · Quick-insert chips · Live preview</span>
+      </div>
+
+      <div class="feat-card sr d1">
+        <div class="feat-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        </div>
+        <h3 class="feat-h3">Tags & <em>categories</em></h3>
+        <p class="feat-desc">Three top-level categories — Writing, Coding, Marketing — plus unlimited free-form tags. Filter by multiple tags at once. Find anything instantly.</p>
+        <span class="feat-pill">Writing · Coding · Marketing</span>
+      </div>
+
+      <div class="feat-card rose sr d2">
+        <div class="feat-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <h3 class="feat-h3">Live <em>test panel</em></h3>
+        <p class="feat-desc">Fill your variables and watch the prompt compile in real time. Filled values appear in green, missing ones flagged in red. One click copies the finished output.</p>
+        <span class="feat-pill" style="background:rgba(224,160,164,.1);color:var(--rose)">Fill → Preview → Copy</span>
+      </div>
+
+      <div class="feat-card sr d1">
+        <div class="feat-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </div>
+        <h3 class="feat-h3">Instant <em>search</em></h3>
+        <p class="feat-desc">Searches titles, content, tags, and categories at once. Hit <code style="font-family:var(--ff-m);color:var(--gold);font-size:12px;background:var(--gold-dim);padding:1px 5px;border-radius:3px">⌘K</code> from anywhere. Results are instant — because everything is local.</p>
+      </div>
+
+      <div class="feat-card sr d2">
+        <div class="feat-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <h3 class="feat-h3">Favorites & <em>stars</em></h3>
+        <p class="feat-desc">Star your highest-performing prompts. A dedicated view keeps them front and centre. Sort by favorites so your best work is always one click away.</p>
+      </div>
+
+      <div class="feat-card feat-wide sr">
+        <div class="feat-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <h3 class="feat-h3">Fully <em>local</em> — your browser, your data, your rules</h3>
+        <p class="feat-desc" style="max-width:700px">Stored in <code style="font-family:var(--ff-m);font-size:13px;color:var(--gold);background:var(--gold-dim);padding:1px 5px;border-radius:3px">localStorage</code>. Nothing leaves your machine. No account, no sync server, no telemetry. Save the HTML file and it works fully offline — no internet required. Your prompts are your competitive advantage. They stay that way.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="flow-sec" id="flow">
+  <div class="wrap">
+    <div class="sec-tag sr">03 — Workflow</div>
+    <h2 class="sec-h2 sr d1">From chaos to <em>compiled prompt</em> in three moves.</h2>
+    <p class="sec-p sr d2">No onboarding. No tutorial. Open the app and your first prompt is ten seconds away.</p>
+    <div class="flow-steps sr">
+      <div class="flow-step">
+        <div class="flow-n">01</div>
+        <h3 class="flow-h3">Save it.</h3>
+        <p class="flow-p"><code>⌘N</code> opens the editor. Paste or write your prompt, pick a category, add tags. <code>⌘+Enter</code> saves. Done in ten seconds.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">02</div>
+        <h3 class="flow-h3">Make it reusable.</h3>
+        <p class="flow-p">Replace specifics with <code>{{variables}}</code>. Quick-insert chips handle the common ones — <code>{{tone}}</code>, <code>{{topic}}</code>, <code>{{audience}}</code>. Every variable auto-detected as you type.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">03</div>
+        <h3 class="flow-h3">Test and copy.</h3>
+        <p class="flow-p">Open the test panel, fill your variables, watch the output compile live. One click copies to clipboard — ready for Claude, ChatGPT, or whatever you're running.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="compare-sec">
+  <div class="wrap">
+    <div class="sec-tag sr">04 — Why not that?</div>
+    <h2 class="sec-h2 sr d1">Others want your <em>data or your wallet.</em></h2>
+    <p class="sec-p sr d2">Every cloud-based prompt manager stores your work on their servers. The ones that don't usually cost money. PromptVault costs neither.</p>
+    <div class="table-wrap sr">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th class="us">PromptVault</th>
+            <th>Cloud SaaS</th>
+            <th>Notion page</th>
+            <th>Chat history</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Free forever</td><td class="us y">Yes</td><td class="m">Usually freemium</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+          <tr><td>Data stays local</td><td class="us y">Yes</td><td class="n">Never</td><td class="n">No</td><td class="n">No</td></tr>
+          <tr><td>Variable templates</td><td class="us y">Yes</td><td class="m">Sometimes</td><td class="m">Manual</td><td class="n">No</td></tr>
+          <tr><td>Live test panel</td><td class="us y">Yes</td><td class="m">Rarely</td><td class="n">No</td><td class="n">No</td></tr>
+          <tr><td>No account needed</td><td class="us y">Yes</td><td class="n">No</td><td class="m">Kind of</td><td class="n">No</td></tr>
+          <tr><td>Works offline</td><td class="us y">Yes</td><td class="n">No</td><td class="n">No</td><td class="n">No</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-sec" id="faq">
+  <div class="wrap-s">
+    <div class="sec-tag sr">05 — FAQ</div>
+    <h2 class="sec-h2 sr d1">Honest answers to <em>fair questions.</em></h2>
+    <div class="faq-list sr">
+      <div class="faq-item">
+        <button class="faq-btn"><span class="faq-q">Where exactly is my data stored?</span><span class="faq-ico">+</span></button>
+        <div class="faq-body"><div class="faq-ans">In your browser's <code style="font-family:var(--ff-m);color:var(--gold);font-size:13px">localStorage</code>. That's it — nothing leaves your machine, nothing is transmitted, nothing is logged. If you clear your browser data, your prompts go with it, so back up the localStorage key before you do.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn"><span class="faq-q">Is it actually free? What's the catch?</span><span class="faq-ico">+</span></button>
+        <div class="faq-body"><div class="faq-ans">Yes, genuinely free. One HTML file, no paywall, no premium tier, no "upgrade for unlimited prompts." It does exactly what it says. The builder earns through AI automation services — the tool is how you find out they're worth talking to.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn"><span class="faq-q">Does it work offline?</span><span class="faq-ico">+</span></button>
+        <div class="faq-body"><div class="faq-ans">Yes. Download the HTML file, save it to your desktop, open it from there. No internet connection required. It's just a file running in your browser — your prompts load instantly regardless of connectivity.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn"><span class="faq-q">Can I sync across devices?</span><span class="faq-ico">+</span></button>
+        <div class="faq-body"><div class="faq-ans">Not natively — by design. Sync requires a server, and a server means your prompts leave your machine. If you need multi-device access or team collaboration, that's a custom build conversation. See the section below.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn"><span class="faq-q">How do I back up my prompts?</span><span class="faq-ico">+</span></button>
+        <div class="faq-body"><div class="faq-ans">Open your browser's dev tools (F12) → Application → Local Storage → find <code style="font-family:var(--ff-m);color:var(--gold);font-size:13px">promptvault.v1</code> → copy the value. Paste it back in the same key on another browser or machine to restore. A proper export button is on the roadmap.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRIDGE -->
+<section class="bridge-sec">
+  <div class="wrap">
+    <div class="bridge-card sr">
+      <div class="b-glow-1"></div>
+      <div class="b-glow-2"></div>
+      <div class="bridge-lbl">— From the builder</div>
+      <h2 class="bridge-h2">Need the <em>bigger thing?</em></h2>
+      <p class="bridge-p">
+        PromptVault is a free tool. The bigger work is on the other side —
+        <strong>AI cold callers that book meetings, content pipelines that run without you, voice agents that qualify leads overnight, custom n8n workflows that replace three tools you're currently paying for.</strong>
+        I build those for teams who are done duct-taping.
+      </p>
+      <div class="chips">
+        <span class="chip">n8n automation</span>
+        <span class="chip">AI cold callers</span>
+        <span class="chip">Retell.ai voice agents</span>
+        <span class="chip">content pipelines</span>
+        <span class="chip">lead qualification</span>
+        <span class="chip">custom AI agents</span>
+      </div>
+      <a href="mailto:hello@example.com?subject=Let%27s%20build%20something" class="btn-gold" style="display:inline-flex">
+        Book a discovery call
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <div class="bridge-sig">— Built by <strong>Tayyab.</strong> The tool is free. The work is not.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-sec">
+  <div class="wrap">
+    <div class="final-mark sr">P</div>
+    <h2 class="final-h2 sr">Stop losing your <em>best prompts.</em></h2>
+    <p class="final-p sr d1">Free. Local. One HTML file. No install, no account, no nonsense.</p>
+    <a href="./promptvault.html" class="btn-gold sr d2" style="display:inline-flex">
+      Launch PromptVault — it's free
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+    <div class="final-meta sr d3">promptvault.app &nbsp;·&nbsp; v1.0 &nbsp;·&nbsp; built with care</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="footer-left"><span>PromptVault</span> · v1.0</div>
+    <div class="footer-nav">
+      <a href="#features">Features</a>
+      <a href="#flow">Workflow</a>
+      <a href="#faq">FAQ</a>
+      <a href="./promptvault.html">Launch</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* PROGRESS */
+const prog = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - innerHeight) * 100;
+  prog.style.width = pct + '%';
+}, { passive: true });
+
+/* NAV COMPACT */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('compact', scrollY > 40);
+}, { passive: true });
+
+/* MOCKUP REVEAL */
+const mockupEl = document.getElementById('mockup');
+new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); } });
+}, { threshold: 0.08 }).observe(mockupEl);
+
+/* SCROLL REVEAL */
+const srEls = document.querySelectorAll('.sr');
+new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.07, rootMargin: '0px 0px -48px 0px' }).observe
+? (() => {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.07, rootMargin: '0px 0px -48px 0px' });
+    srEls.forEach(el => io.observe(el));
+  })()
+: srEls.forEach(el => el.classList.add('visible'));
+
+/* CARD MOUSE GLOW */
+document.querySelectorAll('.feat-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+  });
+});
+
+/* FAQ */
+document.querySelectorAll('.faq-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    document.querySelectorAll('.faq-item.open').forEach(o => { if (o !== item) o.classList.remove('open'); });
+    item.classList.toggle('open');
+  });
+});
+
+/* AMBIENT CANVAS */
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, pts;
+
+  function resize() {
+    W = canvas.width = innerWidth;
+    H = canvas.height = innerHeight;
+  }
+
+  function mkPt() {
+    const colors = ['212,168,106','136,196,160','224,160,164'];
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.4 + 0.2,
+      vx: (Math.random() - .5) * .1,
+      vy: (Math.random() - .5) * .1,
+      a: Math.random() * .22 + .03,
+      col: colors[Math.floor(Math.random() * colors.length)]
+    };
+  }
+
+  resize();
+  pts = Array.from({ length: 80 }, mkPt);
+  window.addEventListener('resize', resize, { passive: true });
+
+  (function tick() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.col},${p.a})`;
+      ctx.fill();
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    });
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+</body>
+</html>
