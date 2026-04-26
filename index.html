@@ -1414,8 +1414,8 @@ function animateCount(el, target, duration, prefix = '', suffix = '') {
 
 // Hero metrics (single shot on load after short delay)
 setTimeout(() => {
-  const m = document.querySelector('.metric-num[data-target="1"] .count-val');
-  if (m) animateCount(m, 1, 1800);
+  const m = document.querySelector('.metric-num[data-target="2"] .count-val');
+  if (m) animateCount(m, 2, 1800);
 }, 800);
 
 // Stats band counters
@@ -1425,7 +1425,7 @@ const statsObs = new IntersectionObserver((entries) => {
   if (entries[0].isIntersecting && !statsDone) {
     statsDone = true;
     const counters = document.querySelectorAll('#stats .scount');
-    const targets = [1, 0, 0, 0];
+    const targets = [2, 0, 0, 0];
     counters.forEach((el, i) => animateCount(el, targets[i], 1800));
   }
 }, { threshold: 0.3 });
