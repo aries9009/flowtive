@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PDFToolbox Pro — 10 PDF Tools, Unlimited Pages, $29 Once</title>
+<meta name="description" content="The complete offline PDF suite. 10 tools, unlimited pages, AES-256 encryption viewer. $29 once — no subscription, no uploads, nothing ever leaves your device."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+/* =============================================
+   TOKENS & RESET
+   ============================================= */
+:root {
+  --ink:        #0f0f14;
+  --ink-2:      #3a3a45;
+  --muted:      #6b6b78;
+  --muted-2:    #9999a5;
+  --accent:     #ff4d24;
+  --accent-2:   #ff8566;
+  --accent-3:   #ff2200;
+  --pro:        #7c3aed;
+  --pro-2:      #a78bfa;
+  --cream:      #f5f3ef;
+
+  --glass-bg:      rgba(255,255,255,0.55);
+  --glass-bg-2:    rgba(255,255,255,0.75);
+  --glass-border:  rgba(255,255,255,0.72);
+  --glass-shadow:  0 8px 32px rgba(15,15,40,0.08), 0 2px 8px rgba(15,15,40,0.04);
+  --glass-hover:   0 20px 60px rgba(15,15,40,0.14), 0 4px 16px rgba(15,15,40,0.06);
+
+  --font:   "Outfit", system-ui, sans-serif;
+  --serif:  "Instrument Serif", Georgia, serif;
+  --mono:   "JetBrains Mono", monospace;
+
+  --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 22px; --r-xl: 30px; --r-2xl: 40px;
+  --section-pad: 120px 0;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:var(--font);font-weight:400;line-height:1.6;
+  color:var(--ink);background:var(--cream);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--accent);color:#fff}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(15,15,20,0.15);border-radius:999px}
+
+/* =============================================
+   AMBIENT BACKGROUND
+   ============================================= */
+.bg-fixed {
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% -10%, #ffd6c2 0%, transparent 55%),
+    radial-gradient(ellipse at 95% 90%, #c9d7ff 0%, transparent 50%),
+    radial-gradient(ellipse at 5% 80%, #e4b9ff 0%, transparent 45%),
+    linear-gradient(180deg, #fff8f3 0%, #f5f3ef 60%, #ede8ff 100%);
+}
+.bg-orb{position:fixed;border-radius:50%;pointer-events:none;z-index:-1;filter:blur(80px);opacity:0.5}
+.bg-orb-1{width:55vw;height:55vw;top:-15%;left:-10%;background:radial-gradient(circle,#ffb4a0 0%,#ff8966 50%,transparent 70%);animation:orbDrift1 32s ease-in-out infinite alternate}
+.bg-orb-2{width:50vw;height:50vw;bottom:-20%;right:-10%;background:radial-gradient(circle,#b9c8ff 0%,#8aa7ff 50%,transparent 70%);animation:orbDrift2 38s ease-in-out infinite alternate}
+.bg-orb-3{width:35vw;height:35vw;top:35%;left:40%;background:radial-gradient(circle,#d4b8ff 0%,#a78bfa 50%,transparent 70%);animation:orbDrift3 44s ease-in-out infinite alternate;opacity:0.35}
+.noise{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0.35;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode:overlay;
+}
+@keyframes orbDrift1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(7%,5%) scale(1.1)}}
+@keyframes orbDrift2{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-5%,-4%) scale(1.08)}}
+@keyframes orbDrift3{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-6%,7%) scale(1.12)}}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* =============================================
+   NAV
+   ============================================= */
+.nav{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  z-index:100;width:calc(100% - 48px);max-width:1100px;
+  padding:12px 22px;
+  background:rgba(255,255,255,0.65);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--glass-border);border-radius:999px;
+  box-shadow:var(--glass-shadow);
+  display:flex;align-items:center;
+  transition:background .3s,box-shadow .3s;
+}
+.nav.scrolled{background:rgba(255,255,255,.85);box-shadow:0 12px 40px rgba(15,15,40,.12)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.02em;color:var(--ink);flex-shrink:0}
+.nav-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;box-shadow:0 4px 12px rgba(255,77,36,.35)}
+.nav-mark.pro{background:linear-gradient(135deg,var(--pro),var(--pro-2));box-shadow:0 4px 12px rgba(124,58,237,.35)}
+.nav-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(167,139,250,.1));color:var(--pro);padding:3px 8px;border-radius:999px;border:1px solid rgba(124,58,237,.2)}
+.nav-links{display:flex;align-items:center;gap:2px;margin-left:auto;margin-right:16px}
+.nav-links a{padding:7px 14px;font-size:13.5px;font-weight:500;color:var(--muted);border-radius:999px;transition:color .2s,background .2s}
+.nav-links a:hover{color:var(--ink);background:rgba(15,15,20,.06)}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 22px;font-size:13.5px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-radius:999px;box-shadow:0 4px 16px rgba(255,77,36,.35);
+  letter-spacing:-.01em;transition:transform .2s,box-shadow .2s,filter .2s;
+  white-space:nowrap;font-family:var(--font);cursor:pointer;border:none;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,77,36,.45);filter:brightness(1.05)}
+.btn-primary.btn-pro-cta{background:linear-gradient(135deg,var(--pro),var(--pro-2));box-shadow:0 4px 16px rgba(124,58,237,.35)}
+.btn-primary.btn-pro-cta:hover{box-shadow:0 8px 24px rgba(124,58,237,.45)}
+.btn-free-link{
+  display:flex;align-items:center;gap:7px;padding:8px 16px;font-size:13.5px;font-weight:600;
+  color:var(--ink-2);border:1px solid rgba(15,15,20,.14);border-radius:999px;
+  letter-spacing:-.01em;transition:all .2s;margin-right:8px;
+}
+.btn-free-link:hover{border-color:var(--ink);color:var(--ink);background:rgba(15,15,20,.04)}
+@media(max-width:760px){.nav-links{display:none}.btn-free-link{display:none}.nav{width:calc(100% - 32px);top:14px}}
+
+/* =============================================
+   HERO
+   ============================================= */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:140px 24px 80px;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
+  background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:999px;
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pro);
+  margin-bottom:32px;animation:fadeUp .6s ease both;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--pro);animation:pulseDot 2s infinite}
+.hero h1{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(52px,8vw,100px);line-height:1.0;letter-spacing:-.03em;
+  color:var(--ink);max-width:14ch;margin:0 auto 28px;
+  animation:fadeUp .7s .1s ease both;
+}
+.hero h1 em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--pro),var(--pro-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:52ch;
+  margin:0 auto 44px;font-weight:400;line-height:1.55;
+  animation:fadeUp .7s .2s ease both;
+}
+.hero-ctas{
+  display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;
+  margin-bottom:64px;animation:fadeUp .7s .3s ease both;
+}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;padding:11px 24px;
+  font-size:14px;font-weight:600;color:var(--ink);
+  background:rgba(255,255,255,.7);border:1px solid rgba(15,15,20,.12);
+  border-radius:999px;backdrop-filter:blur(12px);letter-spacing:-.01em;
+  transition:all .2s;font-family:var(--font);cursor:pointer;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.9);border-color:rgba(15,15,20,.22);box-shadow:0 8px 24px rgba(15,15,40,.08)}
+
+/* Price pill in hero */
+.hero-price-pill{
+  display:inline-flex;align-items:baseline;gap:6px;
+  padding:10px 22px;background:rgba(255,255,255,.75);
+  border:1px solid rgba(124,58,237,.2);border-radius:999px;
+  backdrop-filter:blur(16px);
+  font-size:15px;font-weight:700;color:var(--ink);
+  letter-spacing:-.02em;
+  box-shadow:0 4px 16px rgba(124,58,237,.1);
+}
+.hero-price-pill .price-num{font-size:24px;font-weight:900;color:var(--pro)}
+.hero-price-pill .price-note{font-size:12px;font-weight:500;color:var(--muted)}
+
+.hero-metrics{
+  display:flex;gap:32px;justify-content:center;flex-wrap:wrap;
+  animation:fadeUp .7s .4s ease both;
+}
+.metric{display:flex;flex-direction:column;align-items:center;gap:4px}
+.metric-val{font-size:28px;font-weight:800;letter-spacing:-.04em;color:var(--ink);font-family:var(--font)}
+.metric-val span{color:var(--pro)}
+.metric-label{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.02em;text-transform:uppercase}
+.metric-divider{width:1px;height:40px;background:rgba(15,15,20,.12);align-self:center}
+
+/* Hero mockup */
+.hero-mockup-wrap{
+  width:100%;max-width:900px;margin:80px auto 0;
+  animation:fadeUp .8s .5s ease both;position:relative;
+}
+.hero-mockup{
+  background:var(--glass-bg-2);backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--glass-border);border-radius:var(--r-2xl);
+  box-shadow:0 40px 80px rgba(15,15,40,.14),0 8px 20px rgba(15,15,40,.06);
+  overflow:hidden;position:relative;
+}
+.hero-mockup::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);
+}
+.mockup-topbar{
+  display:flex;align-items:center;gap:0;padding:14px 20px;
+  border-bottom:1px solid rgba(15,15,20,.07);background:rgba(255,255,255,.4);
+}
+.mockup-dots{display:flex;gap:7px;flex-shrink:0}
+.mockup-dot{width:11px;height:11px;border-radius:50%}
+.mockup-dot:nth-child(1){background:#ff6058}
+.mockup-dot:nth-child(2){background:#ffbd2e}
+.mockup-dot:nth-child(3){background:#28c841}
+.mockup-tabs{display:flex;gap:4px;margin:0 auto;background:rgba(15,15,20,.06);border-radius:999px;padding:4px}
+.mockup-tab{padding:6px 18px;font-size:12px;font-weight:600;border-radius:999px;color:var(--muted);font-family:var(--font);letter-spacing:-.01em}
+.mockup-tab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(15,15,40,.08)}
+.mockup-status{font-size:10.5px;font-weight:600;color:#7c3aed;background:rgba(124,58,237,.1);padding:5px 10px;border-radius:999px;display:flex;align-items:center;gap:5px;margin-left:auto;flex-shrink:0}
+.mockup-status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--pro);animation:pulseDot 2s infinite}
+.mockup-body{display:grid;grid-template-columns:1fr 300px;min-height:360px}
+@media(max-width:600px){.mockup-body{grid-template-columns:1fr}}
+.mockup-preview{padding:24px;border-right:1px solid rgba(15,15,20,.07);display:flex;flex-direction:column;gap:16px}
+.mockup-preview-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.mockup-page-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.mock-page{aspect-ratio:0.707;border-radius:8px;background:linear-gradient(180deg,#fff 0%,#f5f2ed 100%);border:1.5px solid transparent;box-shadow:0 4px 12px rgba(15,15,40,.08);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px;transition:transform .2s;cursor:pointer}
+.mock-page:hover{transform:translateY(-2px)}
+.mock-page.sel{border-color:var(--pro);box-shadow:0 0 0 3px rgba(124,58,237,.18),0 6px 16px rgba(124,58,237,.18)}
+.mock-page.sel::before{content:"";position:absolute;inset:0;background:rgba(124,58,237,.06)}
+.mock-page.sel::after{content:"✓";position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:var(--pro);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.mock-page-lines{position:absolute;top:10px;left:8px;right:8px;display:flex;flex-direction:column;gap:4px}
+.mock-page-lines span{display:block;height:2px;border-radius:2px;background:rgba(15,15,20,.08)}
+.mock-page-lines span:nth-child(1){width:70%}
+.mock-page-lines span:nth-child(2){width:90%}
+.mock-page-lines span:nth-child(3){width:55%}
+.mock-page-lines span:nth-child(4){width:80%}
+.mock-page-lines span:nth-child(5){width:60%}
+.mock-page-num{font-size:9px;font-weight:600;color:var(--muted);font-family:var(--mono)}
+.mock-page.sel .mock-page-num{color:var(--pro)}
+.mockup-controls{padding:22px;display:flex;flex-direction:column;gap:14px}
+.mockup-ctrl-head h3{font-family:var(--serif);font-style:italic;font-weight:400;font-size:26px;letter-spacing:-.02em;color:var(--ink);line-height:1}
+.mockup-ctrl-head p{font-size:12px;color:var(--muted);margin-top:4px}
+.mock-info-card{background:rgba(255,255,255,.55);border:1px solid rgba(15,15,20,.07);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.mock-info-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px}
+.mock-info-row .k{color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:10px}
+.mock-info-row .v{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:11px}
+.mock-input{background:rgba(255,255,255,.6);border:1px solid rgba(15,15,20,.12);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--ink);font-family:var(--mono);letter-spacing:.02em}
+.mock-btn-pro{padding:10px;font-size:13px;font-weight:700;background:linear-gradient(135deg,var(--pro),var(--pro-2));color:#fff;border-radius:10px;font-family:var(--font);letter-spacing:-.01em;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(124,58,237,.35);cursor:pointer;border:none}
+
+/* =============================================
+   TICKER
+   ============================================= */
+.ticker-wrap{overflow:hidden;padding:18px 0;border-top:1px solid rgba(15,15,20,.08);border-bottom:1px solid rgba(15,15,20,.08);background:rgba(255,255,255,.3);backdrop-filter:blur(8px)}
+.ticker{display:flex;gap:0;white-space:nowrap;animation:tickerScroll 40s linear infinite}
+.ticker-item{display:inline-flex;align-items:center;gap:12px;padding:0 32px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.01em;text-transform:uppercase}
+.ticker-item strong{color:var(--pro);font-family:var(--mono)}
+.ticker-sep{color:var(--pro);opacity:0.5;font-size:16px}
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* =============================================
+   STATS BAND
+   ============================================= */
+.stats-band{padding:80px 24px}
+.stats-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(15,15,20,.08);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--glass-shadow)}
+@media(max-width:700px){.stats-inner{grid-template-columns:repeat(2,1fr)}}
+.stat-cell{padding:40px 32px;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);text-align:center;transition:background .3s}
+.stat-cell:hover{background:rgba(255,255,255,.75)}
+.stat-num{font-size:clamp(36px,5vw,52px);font-weight:800;letter-spacing:-.05em;color:var(--ink);line-height:1;margin-bottom:8px;font-family:var(--font)}
+.stat-num em{color:var(--pro);font-style:normal}
+.stat-desc{font-size:13px;color:var(--muted);font-weight:500;line-height:1.4}
+
+/* =============================================
+   SECTION HELPERS
+   ============================================= */
+.section{padding:var(--section-pad);overflow:hidden}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.section-tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-tag::before{content:"";display:block;width:24px;height:2px;background:var(--accent);border-radius:2px}
+.section-tag.purple{color:var(--pro)}
+.section-tag.purple::before{background:var(--pro)}
+h2.section-title{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(38px,5.5vw,64px);letter-spacing:-.03em;line-height:1.05;color:var(--ink);margin-bottom:20px}
+h2.section-title em{font-style:italic;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h2.section-title em.pro{background:linear-gradient(135deg,var(--pro),var(--pro-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline}
+.section-sub{font-size:17px;color:var(--muted);max-width:52ch;line-height:1.6;font-weight:400}
+
+/* Animations */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
+
+/* =============================================
+   TOOLS GRID (10 Tools)
+   ============================================= */
+.tools-header{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:60px}
+@media(max-width:800px){.tools-header{grid-template-columns:1fr;gap:32px}}
+.tools-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+@media(max-width:960px){.tools-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:580px){.tools-grid{grid-template-columns:repeat(2,1fr)}}
+.tool-card{
+  background:rgba(255,255,255,.5);border:1px solid var(--glass-border);
+  border-radius:var(--r-lg);padding:22px 18px;backdrop-filter:blur(16px);
+  text-align:center;
+  transition:transform .3s,box-shadow .3s,background .3s;
+}
+.tool-card:hover{transform:translateY(-5px);box-shadow:var(--glass-hover);background:rgba(255,255,255,.72)}
+.tool-card.free-only{border-color:rgba(15,15,20,.1);background:rgba(255,255,255,.35)}
+.tool-emoji{margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:var(--pro)}
+.tool-name{font-size:13.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin-bottom:4px}
+.tool-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.tool-tag{
+  display:inline-block;margin-top:10px;padding:3px 8px;
+  font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  border-radius:999px;font-family:var(--mono);
+}
+.tool-tag.pro-tag{background:rgba(124,58,237,.1);color:var(--pro)}
+.tool-tag.free-tag{background:rgba(46,164,79,.1);color:#2a7a40}
+
+/* =============================================
+   FEATURES DETAIL
+   ============================================= */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:60px}
+@media(max-width:960px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.features-grid{grid-template-columns:1fr}}
+.feature-card{background:rgba(255,255,255,.48);border:1px solid var(--glass-border);border-radius:var(--r-lg);padding:28px 26px;backdrop-filter:blur(16px);transition:transform .3s,box-shadow .3s,background .3s}
+.feature-card:hover{transform:translateY(-4px);box-shadow:var(--glass-hover);background:rgba(255,255,255,.68)}
+.feature-icon{margin-bottom:16px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,.08);border-radius:12px;color:var(--pro)}
+.feature-card h4{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-.015em}
+.feature-card p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.feature-card .tag{display:inline-block;margin-top:14px;padding:3px 10px;font-size:11px;font-weight:700;background:rgba(124,58,237,.1);color:var(--pro);border-radius:999px;letter-spacing:.04em;text-transform:uppercase;font-family:var(--mono)}
+
+/* =============================================
+   PRIVACY / UNDER THE HOOD
+   ============================================= */
+.hood-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;margin-top:60px}
+@media(max-width:800px){.hood-grid{grid-template-columns:1fr}}
+.hood-code-block{background:rgba(15,15,20,.88);border-radius:var(--r-xl);overflow:hidden;box-shadow:0 24px 60px rgba(15,15,40,.2);border:1px solid rgba(255,255,255,.08)}
+.hood-code-header{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04)}
+.hood-code-dots{display:flex;gap:6px}
+.hood-code-dot{width:10px;height:10px;border-radius:50%}
+.hood-code-dot:nth-child(1){background:rgba(255,96,88,.7)}
+.hood-code-dot:nth-child(2){background:rgba(255,189,46,.7)}
+.hood-code-dot:nth-child(3){background:rgba(40,200,65,.7)}
+.hood-code-title{font-size:12px;color:rgba(255,255,255,.4);font-family:var(--mono);margin-left:4px}
+.hood-code-body{padding:24px 26px;font-family:var(--mono);font-size:13px;line-height:1.7;color:rgba(255,255,255,.75)}
+.code-comment{color:rgba(255,255,255,.3)}
+.code-kw{color:#ff8566}
+.code-fn{color:#a78bfa}
+.code-str{color:#a8e6a3}
+.code-num{color:#ffd88a}
+.code-line{display:block}
+.hood-specs{display:flex;flex-direction:column;gap:20px}
+.hood-spec{padding:20px 22px;background:rgba(255,255,255,.48);border:1px solid rgba(15,15,20,.08);border-radius:var(--r-md);display:flex;gap:16px;align-items:flex-start;transition:background .2s}
+.hood-spec:hover{background:rgba(255,255,255,.7)}
+.hood-spec-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(167,139,250,.2));display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--pro)}
+.hood-spec h5{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;letter-spacing:-.01em}
+.hood-spec p{font-size:12.5px;color:var(--muted);line-height:1.5}
+.hood-spec code{font-family:var(--mono);font-size:11.5px;background:rgba(124,58,237,.1);color:var(--pro);padding:2px 6px;border-radius:4px}
+
+/* =============================================
+   COMPARISON TABLE
+   ============================================= */
+.compare-wrap{overflow-x:auto;margin-top:60px;border-radius:var(--r-xl);box-shadow:var(--glass-shadow)}
+.compare-table{width:100%;border-collapse:collapse;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);border-radius:var(--r-xl);overflow:hidden;min-width:640px}
+.compare-table th{padding:20px 24px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid rgba(15,15,20,.08);background:rgba(255,255,255,.3);text-align:left}
+.compare-table th.hl{background:rgba(124,58,237,.07);color:var(--pro)}
+.compare-table td{padding:16px 24px;font-size:14px;border-bottom:1px solid rgba(15,15,20,.05);color:var(--ink);font-weight:500;vertical-align:middle}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:hover td{background:rgba(255,255,255,.4)}
+.compare-table td.hl{background:rgba(124,58,237,.04)}
+.check{color:#2ea44f;font-size:18px}
+.check-pro{color:var(--pro);font-size:18px}
+.cross{color:#cc3300;font-size:18px}
+.partial{color:#f5a623;font-size:13px;font-weight:600}
+.compare-note{margin-top:20px;font-size:13px;color:var(--muted);padding:14px 18px;background:rgba(255,255,255,.4);border-radius:var(--r-md);border-left:3px solid rgba(124,58,237,.4);font-style:italic}
+
+/* =============================================
+   PRICING
+   ============================================= */
+.pricing-wrap{max-width:760px;margin:64px auto 0;position:relative}
+.pricing-card-main{
+  background:rgba(255,255,255,.72);
+  border:2px solid rgba(124,58,237,.3);
+  border-radius:var(--r-2xl);
+  padding:52px 52px 44px;
+  backdrop-filter:blur(24px);
+  box-shadow:0 12px 48px rgba(124,58,237,.1),var(--glass-shadow);
+  position:relative;overflow:hidden;
+}
+.pricing-card-main::before{
+  content:"";position:absolute;inset:-2px;border-radius:calc(var(--r-2xl) + 2px);
+  background:linear-gradient(135deg,rgba(124,58,237,.35),rgba(167,139,250,.2),rgba(255,77,36,.15));
+  z-index:-1;
+}
+.pricing-card-main::after{
+  content:"";position:absolute;inset:2px;border-radius:calc(var(--r-2xl) - 2px);
+  background:rgba(245,243,239,.95);z-index:-1;
+}
+.pricing-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 16px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--pro),var(--pro-2));color:#fff;
+  border-radius:999px;margin-bottom:24px;
+  box-shadow:0 4px 12px rgba(124,58,237,.35);
+}
+.pricing-main-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:start}
+@media(max-width:720px){.pricing-main-layout{grid-template-columns:1fr;gap:32px}}
+.pricing-price-block{}
+.pricing-price{font-size:clamp(56px,8vw,88px);font-weight:900;letter-spacing:-.05em;color:var(--ink);line-height:1;font-family:var(--font)}
+.pricing-price sup{font-size:28px;font-weight:700;vertical-align:top;margin-top:14px;letter-spacing:0;color:var(--pro)}
+.pricing-period{font-size:15px;color:var(--muted);margin-top:6px;font-weight:400}
+.pricing-period strong{color:var(--pro);font-weight:700}
+.pricing-desc{font-size:15px;color:var(--muted);margin-top:20px;line-height:1.6}
+.pricing-compare-free{
+  margin-top:20px;padding:14px 18px;
+  background:rgba(15,15,20,.04);border-radius:var(--r-md);
+  font-size:13px;color:var(--muted);
+}
+.pricing-compare-free a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.pricing-features-list{list-style:none;display:flex;flex-direction:column;gap:11px}
+.pricing-features-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--ink-2);font-weight:500}
+.pricing-features-list li::before{content:"✓";color:var(--pro);font-weight:800;font-size:15px;flex-shrink:0;margin-top:1px}
+.pricing-cta-block{margin-top:36px;display:flex;flex-direction:column;gap:12px}
+.pricing-cta-block .btn-primary{padding:15px;font-size:15px;justify-content:center;width:100%}
+.pricing-guarantee{font-size:12.5px;color:var(--muted);text-align:center}
+
+/* =============================================
+   FAQ
+   ============================================= */
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:56px}
+@media(max-width:760px){.faq-grid{grid-template-columns:1fr}}
+.faq-item{background:rgba(255,255,255,.5);border:1px solid rgba(15,15,20,.08);border-radius:var(--r-lg);overflow:hidden;backdrop-filter:blur(12px)}
+.faq-q{width:100%;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:15px;font-weight:600;color:var(--ink);text-align:left;cursor:pointer;letter-spacing:-.01em;background:none;border:none;font-family:var(--font);transition:background .2s}
+.faq-q:hover{background:rgba(255,255,255,.5)}
+.faq-arrow{width:26px;height:26px;border-radius:50%;background:rgba(124,58,237,.1);color:var(--pro);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .3s,background .2s}
+.faq-item.open .faq-arrow{transform:rotate(180deg);background:var(--pro);color:#fff}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s}
+.faq-item.open .faq-a{max-height:300px}
+.faq-a-inner{padding:0 22px 20px;font-size:14px;color:var(--muted);line-height:1.65}
+
+/* =============================================
+   FINAL CTA
+   ============================================= */
+.final-cta{padding:100px 24px}
+.cta-box{
+  max-width:780px;margin:0 auto;text-align:center;
+  padding:72px 48px;border-radius:var(--r-2xl);
+  position:relative;overflow:hidden;
+  background:rgba(255,255,255,.55);backdrop-filter:blur(24px);
+}
+.cta-box::before{
+  content:"";position:absolute;inset:-2px;border-radius:calc(var(--r-2xl) + 2px);
+  background:linear-gradient(135deg,rgba(124,58,237,.5),rgba(167,139,250,.4),rgba(255,77,36,.35));
+  z-index:-1;animation:gradShift 6s ease infinite alternate;
+}
+@keyframes gradShift{
+  0%{background:linear-gradient(135deg,rgba(124,58,237,.5),rgba(167,139,250,.4),rgba(255,77,36,.35))}
+  100%{background:linear-gradient(225deg,rgba(255,77,36,.35),rgba(124,58,237,.5),rgba(167,139,250,.4))}
+}
+.cta-box::after{content:"";position:absolute;inset:2px;border-radius:calc(var(--r-2xl) - 2px);background:rgba(245,243,239,.92);z-index:-1}
+.cta-box h2{font-family:var(--serif);font-style:italic;font-size:clamp(36px,5vw,56px);letter-spacing:-.03em;color:var(--ink);margin-bottom:18px;line-height:1.05;font-weight:400}
+.cta-box p{font-size:17px;color:var(--muted);margin-bottom:40px;line-height:1.6}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+footer{padding:64px 24px 40px;border-top:1px solid rgba(15,15,20,.08)}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:56px}
+@media(max-width:800px){.footer-top{grid-template-columns:1fr 1fr;gap:32px}}
+@media(max-width:480px){.footer-top{grid-template-columns:1fr}}
+.footer-brand-col .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.02em;color:var(--ink);margin-bottom:14px}
+.footer-brand-col p{font-size:13.5px;color:var(--muted);line-height:1.6;max-width:28ch}
+.footer-col h5{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px}
+.footer-col a{display:block;font-size:14px;color:var(--ink-2);margin-bottom:10px;transition:color .2s;font-weight:500}
+.footer-col a:hover{color:var(--pro)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid rgba(15,15,20,.07);gap:20px;flex-wrap:wrap}
+.footer-copy{font-size:13px;color:var(--muted)}
+.footer-status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#1f8a43;background:rgba(46,164,79,.1);padding:6px 12px;border-radius:999px}
+.footer-status::before{content:"";width:6px;height:6px;border-radius:50%;background:#2ea44f;animation:pulseDot 2s infinite}
+.text-center{text-align:center}
+</style>
+</head>
+<body>
+
+<div class="bg-fixed"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+<div class="noise"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="./pro-landing.html" class="nav-brand">
+    <div class="nav-mark pro">PDF</div>
+    PDFToolbox
+    <span class="nav-badge">Pro</span>
+  </a>
+  <div class="nav-links">
+    <a href="#tools">10 Tools</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="./free-landing.html" class="btn-free-link">Free version</a>
+  <a href="#pricing" class="btn-primary btn-pro-cta">Get Pro — $29 →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    PDFToolbox Pro · 10 Tools · One Payment
+  </div>
+  <h1>Ten PDF tools.<br/><em class="pro">One payment.</em><br/>Zero servers.</h1>
+  <p class="hero-sub">
+    The complete offline PDF suite. Split, merge, compress, watermark, rotate, encrypt, and export — all running privately inside your browser. Your documents never leave your machine.
+  </p>
+  <div class="hero-ctas">
+    <a href="#pricing" class="btn-primary btn-pro-cta" style="padding:13px 30px;font-size:15px">
+      Get Pro — $29 →
+    </a>
+    <a href="./free-landing.html" class="btn-secondary">Try Free version first</a>
+  </div>
+  <div class="hero-metrics">
+    <div class="metric"><div class="metric-val">10<span>×</span></div><div class="metric-label">PDF Tools</div></div>
+    <div class="metric-divider"></div>
+    <div class="metric"><div class="metric-val"><span>$</span>29</div><div class="metric-label">One-Time Price</div></div>
+    <div class="metric-divider"></div>
+    <div class="metric"><div class="metric-val">0<span>kb</span></div><div class="metric-label">Data Uploaded</div></div>
+    <div class="metric-divider"></div>
+    <div class="metric"><div class="metric-val">100<span>%</span></div><div class="metric-label">Browser Native</div></div>
+  </div>
+
+  <!-- MOCKUP -->
+  <div class="hero-mockup-wrap reveal">
+    <div class="hero-mockup">
+      <div class="mockup-topbar">
+        <div class="mockup-dots">
+          <div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div>
+        </div>
+        <div class="mockup-tabs">
+          <div class="mockup-tab">Split</div>
+          <div class="mockup-tab active">Extract</div>
+          <div class="mockup-tab">Merge</div>
+          <div class="mockup-tab">Compress</div>
+        </div>
+        <div class="mockup-status">Pro · Offline</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-preview">
+          <div class="mockup-preview-label">Document · Contract_Final.pdf · 48 pages</div>
+          <div class="mockup-page-grid">
+            <div class="mock-page sel"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">01</div></div>
+            <div class="mock-page"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">02</div></div>
+            <div class="mock-page sel"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">03</div></div>
+            <div class="mock-page sel"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">04</div></div>
+            <div class="mock-page"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">05</div></div>
+            <div class="mock-page"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">06</div></div>
+            <div class="mock-page sel"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">07</div></div>
+            <div class="mock-page"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">08</div></div>
+            <div class="mock-page"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">09</div></div>
+            <div class="mock-page"><div class="mock-page-lines"><span></span><span></span><span></span><span></span><span></span></div><div class="mock-page-num">10</div></div>
+          </div>
+        </div>
+        <div class="mockup-controls">
+          <div class="mockup-ctrl-head">
+            <h3>Extract pages</h3>
+            <p>Tap pages or enter a range · No page limit</p>
+          </div>
+          <div class="mock-info-card">
+            <div class="mock-info-row"><span class="k">File</span><span class="v">Contract_Final.pdf</span></div>
+            <div class="mock-info-row"><span class="k">Pages</span><span class="v">48</span></div>
+            <div class="mock-info-row"><span class="k">Selected</span><span class="v" id="mock-selected-count" style="color:var(--pro)">4 pages</span></div>
+            <div class="mock-info-row"><span class="k">Limit</span><span class="v" style="color:#2ea44f">Unlimited ✓</span></div>
+          </div>
+          <div class="mock-input">extracted.pdf</div>
+          <button class="mock-btn-pro" id="mock-extract-btn">↓ Extract 4 pages</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item">Split PDFs by page range <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Merge unlimited files <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Extract pages visually <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>Compress PDF size</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Add watermarks <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>AES-256 encryption</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Rotate & reorder pages <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Export as PNG · JPEG <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>Zero server uploads</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Works fully offline <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>$29 once · forever</strong> <span class="ticker-sep">·</span></span>
+    <!-- duplicate -->
+    <span class="ticker-item">Split PDFs by page range <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Merge unlimited files <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Extract pages visually <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>Compress PDF size</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Add watermarks <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>AES-256 encryption</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Rotate & reorder pages <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Export as PNG · JPEG <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>Zero server uploads</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Works fully offline <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>$29 once · forever</strong> <span class="ticker-sep">·</span></span>
+  </div>
+</div>
+
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-cell reveal">
+      <div class="stat-num">10<em>×</em></div>
+      <div class="stat-desc">PDF tools in<br/>a single suite</div>
+    </div>
+    <div class="stat-cell reveal reveal-delay-1">
+      <div class="stat-num"><em>$</em>29</div>
+      <div class="stat-desc">One payment.<br/>No subscription ever.</div>
+    </div>
+    <div class="stat-cell reveal reveal-delay-2">
+      <div class="stat-num">0<em>kb</em></div>
+      <div class="stat-desc">Data sent to<br/>any server</div>
+    </div>
+    <div class="stat-cell reveal reveal-delay-3">
+      <div class="stat-num">∞<em> </em></div>
+      <div class="stat-desc">Pages. Files.<br/>No artificial limits.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 TOOLS -->
+<section class="section" id="tools">
+  <div class="container">
+    <div class="tools-header">
+      <div class="reveal">
+        <div class="section-tag purple">The Full Suite</div>
+        <h2 class="section-title">Ten tools.<br/><em class="pro">All offline.</em></h2>
+        <p class="section-sub">Every PDF operation you actually need — no subscriptions, no feature unlocks, no monthly surprises.</p>
+      </div>
+      <div class="reveal reveal-delay-1" style="display:flex;flex-direction:column;gap:14px">
+        <div style="padding:20px 24px;background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.18);border-radius:var(--r-lg)">
+          <div style="font-size:13px;font-weight:700;color:var(--pro);margin-bottom:8px;letter-spacing:-.01em">Free version included 3 tools →</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6">Split, Merge (2 files), and Extract — all with a 10-page limit. Need more? Pro gives you all ten tools with no page restrictions and a one-time $29 payment.</div>
+          <a href="./free-landing.html" style="display:inline-block;margin-top:12px;font-size:13px;font-weight:600;color:var(--accent)">Try the free version first →</a>
+        </div>
+      </div>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card reveal">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div>
+        <div class="tool-name">Split</div>
+        <div class="tool-desc">Extract page ranges with smart range syntax</div>
+        <span class="tool-tag free-tag">Free too</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-1">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+        <div class="tool-name">Merge</div>
+        <div class="tool-desc">Combine unlimited PDFs with drag-to-reorder</div>
+        <span class="tool-tag free-tag">Free (2 files)</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-2">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div class="tool-name">Extract</div>
+        <div class="tool-desc">Visual thumbnail selector, click-order preserved</div>
+        <span class="tool-tag free-tag">Free too</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-3">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+        <div class="tool-name">Compress</div>
+        <div class="tool-desc">Reduce file size without losing readability</div>
+        <span class="tool-tag pro-tag">Pro only</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-4">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></div>
+        <div class="tool-name">Watermark</div>
+        <div class="tool-desc">Add text or image watermarks across all pages</div>
+        <span class="tool-tag pro-tag">Pro only</span>
+      </div>
+      <div class="tool-card reveal">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+        <div class="tool-name">Rotate</div>
+        <div class="tool-desc">Rotate any page or set to 90°, 180°, 270°</div>
+        <span class="tool-tag pro-tag">Pro only</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-1">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></div>
+        <div class="tool-name">Reorder</div>
+        <div class="tool-desc">Drag pages into any order and export</div>
+        <span class="tool-tag pro-tag">Pro only</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-2">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div>
+        <div class="tool-name">Remove Pages</div>
+        <div class="tool-desc">Delete selected pages from a document</div>
+        <span class="tool-tag pro-tag">Pro only</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-3">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <div class="tool-name">Encrypt</div>
+        <div class="tool-desc">AES-256 secure viewer — open protected PDFs</div>
+        <span class="tool-tag pro-tag">Pro only</span>
+      </div>
+      <div class="tool-card reveal reveal-delay-4">
+        <div class="tool-emoji"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div class="tool-name">Export to Image</div>
+        <div class="tool-desc">Save any page as PNG or JPEG at full fidelity</div>
+        <span class="tool-tag pro-tag">Pro only</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES DETAIL -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-tag purple reveal">Why Pro</div>
+    <h2 class="section-title reveal">Everything you need.<br/><em class="pro">Nothing held back.</em></h2>
+    <p class="section-sub reveal reveal-delay-1">No artificial limits, no monthly gates. Pay once and every tool is yours, completely offline, forever.</p>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4z"/><path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/></svg></div>
+        <h4>No page limits. Ever.</h4>
+        <p>Process 500-page contracts, full book manuscripts, or massive technical documents. Pro has zero page restrictions on every single tool.</p>
+        <span class="tag">Unlimited</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+        <h4>AES-256 encrypted viewer</h4>
+        <p>Open, view, and process password-protected PDFs locally. The encryption happens in your browser — the password never travels anywhere.</p>
+        <span class="tag">Encrypt Tool</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+        <h4>Lossless compression</h4>
+        <p>Reduce bloated PDFs for email or archiving. The compression algorithm runs in a Web Worker — the UI stays responsive even on large files.</p>
+        <span class="tag">Compress Tool</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <h4>PDF to PNG / JPEG export</h4>
+        <p>Render any PDF page to a full-resolution image. Useful for presentations, thumbnails, social media, or anywhere a PDF won't embed cleanly.</p>
+        <span class="tag">Export Tool</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></div>
+        <h4>Watermark any document</h4>
+        <p>Add text or image watermarks across all pages at once. Set opacity, position, and rotation. The output is a clean PDF — no visible layer artifacts.</p>
+        <span class="tag">Watermark Tool</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h4>Still 100% offline</h4>
+        <p>Every Pro tool runs with the same privacy guarantee as the free version — zero server contact, zero uploads, zero tracking. Your documents stay yours.</p>
+        <span class="tag">Privacy</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UNDER THE HOOD -->
+<section class="section" id="under-the-hood">
+  <div class="container">
+    <div class="section-tag purple reveal">Under the Hood</div>
+    <h2 class="section-title reveal">Powered by real<br/><em class="pro">PDF engines.</em></h2>
+    <p class="section-sub reveal reveal-delay-1">Built on three battle-tested open source libraries — the same engines powering major commercial PDF products.</p>
+    <div class="hood-grid">
+      <div class="hood-code-block reveal">
+        <div class="hood-code-header">
+          <div class="hood-code-dots"><div class="hood-code-dot"></div><div class="hood-code-dot"></div><div class="hood-code-dot"></div></div>
+          <span class="hood-code-title">pdftoolbox — compress + merge pipeline</span>
+        </div>
+        <div class="hood-code-body">
+          <span class="code-line"><span class="code-comment">// All operations run in-browser. Zero uploads.</span></span>
+          <span class="code-line"><span class="code-kw">const</span> merged = <span class="code-kw">await</span> <span class="code-fn">PDFDocument</span>.<span class="code-fn">create</span>();</span>
+          <span class="code-line"></span>
+          <span class="code-line"><span class="code-kw">for</span> (<span class="code-kw">const</span> f <span class="code-kw">of</span> state.merge.files) {</span>
+          <span class="code-line">  <span class="code-kw">const</span> src = <span class="code-kw">await</span> <span class="code-fn">PDFDocument</span>.<span class="code-fn">load</span>(</span>
+          <span class="code-line">    f.buf.<span class="code-fn">slice</span>(<span class="code-num">0</span>),</span>
+          <span class="code-line">    { ignoreEncryption: <span class="code-num">true</span> }</span>
+          <span class="code-line">  );</span>
+          <span class="code-line">  <span class="code-kw">const</span> pages = <span class="code-kw">await</span> merged</span>
+          <span class="code-line">    .<span class="code-fn">copyPages</span>(src, src.<span class="code-fn">getPageIndices</span>());</span>
+          <span class="code-line">  pages.<span class="code-fn">forEach</span>(p => merged.<span class="code-fn">addPage</span>(p));</span>
+          <span class="code-line">}</span>
+          <span class="code-line"></span>
+          <span class="code-line"><span class="code-kw">const</span> bytes = <span class="code-kw">await</span> merged.<span class="code-fn">save</span>();</span>
+          <span class="code-line"><span class="code-fn">downloadBytes</span>(bytes, <span class="code-str">"merged.pdf"</span>);</span>
+          <span class="code-line"><span class="code-comment">// ↑ direct download — never touches a server</span></span>
+        </div>
+      </div>
+      <div class="hood-specs reveal reveal-delay-2">
+        <div class="hood-spec">
+          <div class="hood-spec-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+          <div>
+            <h5>pdf-lib <code>v1.17.1</code></h5>
+            <p>Handles all PDF write operations — page copying, document creation, watermarking, rotation, and byte output. The gold-standard pure JS PDF library.</p>
+          </div>
+        </div>
+        <div class="hood-spec">
+          <div class="hood-spec-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div>
+            <h5>PDF.js <code>v3.11.174</code></h5>
+            <p>Powers visual page thumbnail rendering and the image export tool. Mozilla's canonical PDF renderer — the same engine Firefox uses internally.</p>
+          </div>
+        </div>
+        <div class="hood-spec">
+          <div class="hood-spec-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+          <div>
+            <h5>JSZip <code>v3.10.1</code></h5>
+            <p>Provides in-browser ZIP creation for batch exports. All compression runs in a Web Worker, keeping the UI responsive during large operations.</p>
+          </div>
+        </div>
+        <div class="hood-spec">
+          <div class="hood-spec-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <div>
+            <h5>Vanilla JS — zero frameworks</h5>
+            <p>No React, Vue, or Angular. Hand-crafted HTML + CSS + vanilla JS means near-instant load times and no dependency bloat.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="section">
+  <div class="container">
+    <div class="section-tag purple reveal">Comparison</div>
+    <h2 class="section-title reveal">How it stacks<br/><em>up honestly.</em></h2>
+    <p class="section-sub reveal reveal-delay-1">A frank side-by-side. PDFToolbox Pro won't pretend to do things it doesn't.</p>
+    <div class="compare-wrap reveal">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>PDFToolbox Free</th>
+            <th class="hl">PDFToolbox Pro</th>
+            <th>Smallpdf / ILovePDF</th>
+            <th>Adobe Acrobat</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Files leave your device</td>
+            <td><span class="check">✓</span> Never</td>
+            <td class="hl"><span class="check-pro">✓</span> Never</td>
+            <td><span class="cross">✗</span> Always</td>
+            <td><span class="cross">✗</span> Cloud sync</td>
+          </tr>
+          <tr>
+            <td>Works offline</td>
+            <td><span class="check">✓</span> Yes</td>
+            <td class="hl"><span class="check-pro">✓</span> Yes</td>
+            <td><span class="cross">✗</span> No</td>
+            <td><span class="partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td>Number of tools</td>
+            <td>3</td>
+            <td class="hl"><strong style="color:var(--pro)">10</strong></td>
+            <td>20+</td>
+            <td>All</td>
+          </tr>
+          <tr>
+            <td>Page limits</td>
+            <td><span class="partial">10 pages</span></td>
+            <td class="hl"><span class="check-pro">✓</span> Unlimited</td>
+            <td><span class="partial">Freemium</span></td>
+            <td><span class="check">✓</span> Unlimited</td>
+          </tr>
+          <tr>
+            <td>Price</td>
+            <td><span class="check">Free</span></td>
+            <td class="hl"><strong style="color:var(--pro)">$29 once</strong></td>
+            <td><span class="partial">$9–18/mo</span></td>
+            <td><span class="cross">$23+/mo</span></td>
+          </tr>
+          <tr>
+            <td>PDF compression</td>
+            <td><span class="cross">✗</span></td>
+            <td class="hl"><span class="check-pro">✓</span> Yes</td>
+            <td><span class="check">✓</span> Yes</td>
+            <td><span class="check">✓</span> Yes</td>
+          </tr>
+          <tr>
+            <td>Watermark / Encrypt</td>
+            <td><span class="cross">✗</span></td>
+            <td class="hl"><span class="check-pro">✓</span> Both</td>
+            <td><span class="partial">Limited</span></td>
+            <td><span class="check">✓</span> Full</td>
+          </tr>
+          <tr>
+            <td>Export pages to image</td>
+            <td><span class="cross">✗</span></td>
+            <td class="hl"><span class="check-pro">✓</span> PNG + JPEG</td>
+            <td><span class="check">✓</span> Yes</td>
+            <td><span class="check">✓</span> Yes</td>
+          </tr>
+          <tr>
+            <td>Open source / auditable</td>
+            <td><span class="check">✓</span> GitHub</td>
+            <td class="hl"><span class="check-pro">✓</span> GitHub</td>
+            <td><span class="cross">✗</span> Closed</td>
+            <td><span class="cross">✗</span> Closed</td>
+          </tr>
+          <tr>
+            <td>OCR / text extraction</td>
+            <td><span class="cross">✗</span> Not yet</td>
+            <td class="hl"><span class="cross">✗</span> Not yet</td>
+            <td><span class="check">✓</span> Yes</td>
+            <td><span class="check">✓</span> Yes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="compare-note reveal">PDFToolbox Pro doesn't include OCR yet — that requires heavy engines harder to run without a server. What it does, it does with no privacy compromise and no monthly fee.</p>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="container text-center">
+    <div class="section-tag purple reveal" style="justify-content:center">Pricing</div>
+    <h2 class="section-title reveal">One price.<br/><em class="pro">Own it forever.</em></h2>
+    <p class="section-sub reveal reveal-delay-1" style="margin:0 auto">Ten offline PDF tools for a single $29 payment. No subscription, no renewal, no monthly bill. Pay once, use forever.</p>
+
+    <div class="pricing-wrap reveal reveal-delay-1">
+      <div class="pricing-card-main">
+        <div class="pricing-badge">✦ PDFToolbox Pro</div>
+        <div class="pricing-main-layout">
+          <div class="pricing-price-block">
+            <div class="pricing-price"><sup>$</sup>29</div>
+            <p class="pricing-period"><strong>Pay once.</strong> Yours forever.</p>
+            <p class="pricing-desc">No subscription. No renewal emails. No feature unlocks. Everything in Pro is yours the moment you pay.</p>
+            <div class="pricing-compare-free">
+              Want to test before buying? <a href="./free-landing.html">Try the free version →</a> — split, merge, and extract with a 10-page limit. No payment required.
+            </div>
+          </div>
+          <div>
+            <ul class="pricing-features-list">
+              <li>All 10 PDF tools (Split, Merge, Extract, Compress, Watermark, Rotate, Reorder, Remove, Encrypt, Export)</li>
+              <li>Unlimited page counts — no restrictions</li>
+              <li>Merge unlimited files at once</li>
+              <li>AES-256 encrypted secure PDF viewer</li>
+              <li>Export pages as PNG or JPEG images</li>
+              <li>Lossless PDF compression</li>
+              <li>Add text or image watermarks</li>
+              <li>100% offline — same privacy as free</li>
+              <li>All future tool additions included</li>
+            </ul>
+            <div class="pricing-cta-block">
+              <a href="./index.html" class="btn-primary btn-pro-cta">Get PDFToolbox Pro — $29 →</a>
+              <p class="pricing-guarantee">🔒 Secure checkout · Instant access · No subscription</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-tag purple reveal text-center" style="justify-content:center">FAQ</div>
+    <h2 class="section-title reveal text-center">Questions people<br/><em>actually ask.</em></h2>
+    <div class="faq-grid">
+      <div class="faq-item reveal">
+        <button class="faq-q">Does my PDF file really never leave my computer? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">Yes. PDFToolbox uses the browser's File API to read your file into memory — it never makes an HTTP request with your file data. You can verify this yourself: open the Network tab in DevTools while using the app. You'll see zero outbound requests carrying your file. The only network activity is the initial page load for scripts from CDNs.</div></div>
+      </div>
+      <div class="faq-item reveal reveal-delay-1">
+        <button class="faq-q">Is this really a one-time payment? No catch? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">Yes, $29 once. There is no subscription, no renewal, no "Pro+" tier above this. All future tool additions are included — when we ship new tools, you get them automatically. The one-time model is intentional; we believe software you buy should stay bought.</div></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">What's the difference between Pro and Free? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">Free gives you 3 tools (Split, Merge, Extract) with a 10-page limit and 2-file merge cap. Pro removes all limits and adds 7 more tools: Compress, Watermark, Rotate, Reorder, Remove Pages, Encrypt, and Export to Image. Same privacy guarantee on both.</div></div>
+      </div>
+      <div class="faq-item reveal reveal-delay-1">
+        <button class="faq-q">Can I use it without an internet connection? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">Once you've loaded the page, yes. The PDF engines are loaded from CDNs on first visit but cached by your browser. After that, the tool functions completely offline — on planes, air-gapped networks, anywhere. A fully self-hosted version is also available on GitHub for guaranteed offline deployments.</div></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">What's the maximum file size? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">There's no artificial limit — the constraint is your browser's available RAM. PDFs up to several hundred megabytes work fine on modern hardware. Very large files (500MB+) with embedded high-resolution images may process slowly. The app shows a spinner so you know it's working.</div></div>
+      </div>
+      <div class="faq-item reveal reveal-delay-1">
+        <button class="faq-q">Will it work on password-protected PDFs? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">Pro's Encrypt tool can open and process many password-protected PDFs locally. PDFs with user-open passwords require the password to be entered first. Owner-permission restrictions are generally bypassed for local processing. The password you enter never leaves your device.</div></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">Can I use this in my company's internal tools? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">Yes. The source is on GitHub. You can fork it, remove branding, and deploy on your internal network. For enterprise white-labeling, compliance documentation, or custom feature development, contact us at thelastride1825@gmail.com.</div></div>
+      </div>
+      <div class="faq-item reveal reveal-delay-1">
+        <button class="faq-q">What happens to my file when I close the tab? <div class="faq-arrow">▾</div></button>
+        <div class="faq-a"><div class="faq-a-inner">It's garbage collected by the browser. PDFToolbox uses no localStorage, no IndexedDB, no service worker caching of your file data. Your documents are held in memory only for the duration of your session and cleared when you close the tab or refresh.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="cta-box reveal">
+    <h2>Ten tools.<br/>$29. Yours forever.</h2>
+    <p>No subscription. No uploads. No waiting. PDFToolbox Pro runs entirely in your browser — buy once and every tool is yours.</p>
+    <div class="cta-btns">
+      <a href="#pricing" class="btn-primary btn-pro-cta" style="padding:14px 32px;font-size:15px">Get PDFToolbox Pro →</a>
+      <a href="./free-landing.html" class="btn-secondary" style="padding:14px 28px;font-size:15px">Try Free first</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand-col">
+        <div class="logo">
+          <div class="nav-mark pro">PDF</div>
+          PDFToolbox Pro
+        </div>
+        <p>The complete offline PDF suite. 10 tools, unlimited pages, $29 once.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Pro Tools</h5>
+        <a href="#tools">All 10 Tools</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing — $29</a>
+        <a href="https://github.com/aries9009/flowtive" target="_blank">GitHub Repo</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="#under-the-hood">Tech Stack</a>
+        <a href="#faq">FAQ</a>
+        <a href="./free-landing.html">Free Version</a>
+        <a href="https://github.com/aries9009/flowtive/issues" target="_blank">Report a Bug</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="mailto:thelastride1825@gmail.com">thelastride1825@gmail.com</a>
+        <a href="./free-landing.html">Free Version</a>
+        <a href="https://github.com/aries9009/flowtive" target="_blank">Open Source</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 PDFToolbox · $29 once · No subscription · No rights reserved worth worrying about.</span>
+      <div class="footer-status">All processing runs locally</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Sticky nav
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, {passive:true});
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:0.08, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+// Mockup page click — live selected count
+const mockSelectedCount = document.getElementById('mock-selected-count');
+const mockExtractBtn = document.getElementById('mock-extract-btn');
+
+function updateMockCount() {
+  const n = document.querySelectorAll('.mock-page.sel').length;
+  const label = n === 1 ? '1 page' : `${n} pages`;
+  if (mockSelectedCount) mockSelectedCount.textContent = label;
+  if (mockExtractBtn) mockExtractBtn.textContent = `↓ Extract ${label}`;
+}
+
+document.querySelectorAll('.mock-page').forEach(page => {
+  page.addEventListener('click', () => {
+    page.classList.toggle('sel');
+    updateMockCount();
+  });
+});
+
+// 3D tilt on mockup
+const mockup = document.querySelector('.hero-mockup');
+const mockupWrap = document.querySelector('.hero-mockup-wrap');
+if(mockupWrap && mockup) {
+  mockupWrap.addEventListener('mousemove', e => {
+    const rect = mockupWrap.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mockup.style.transform = `perspective(1000px) rotateX(${-y*4}deg) rotateY(${x*6}deg)`;
+  });
+  mockupWrap.addEventListener('mouseleave', () => {
+    mockup.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+    mockup.style.transition = 'transform .5s ease';
+  });
+  mockupWrap.addEventListener('mouseenter', () => {
+    mockup.style.transition = 'transform .1s ease';
+  });
+}
+</script>
+</body>
+</html>

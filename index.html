@@ -984,7 +984,7 @@
 
     <div class="hero-metrics">
       <div class="metric">
-        <span class="metric-num" data-target="3" data-suffix=" Tools">
+        <span class="metric-num" data-target="4" data-suffix=" Tools">
           <span class="count-val">0</span><span class="suffix"> Tools</span>
         </span>
         <span class="metric-label">And growing</span>
@@ -1076,6 +1076,17 @@
       <span class="tool-btn">Open →</span>
     </a>
 
+    <a href="./PDFToolBox_Pro/landing.html" class="tool-card">
+      <div class="tool-icon-wrap">🔧</div>
+      <div class="tool-name">PDFToolBox_Pro</div>
+      <p class="tool-desc">Splits, merges, extracts, encrypts...pdf files</p>
+      <div class="tool-meta">
+        <span class="badge-category">Utility</span>
+        <span class="badge-pro">Pro</span>
+      </div>
+      <span class="tool-btn">Open →</span>
+    </a>
+
   </div>
   <!-- TOOLS GRID END -->
 </section>
@@ -1084,7 +1095,7 @@
 <section id="stats">
   <div class="stats-inner reveal">
     <div class="stat-item">
-      <span class="stat-num grad-text" data-target="3" data-suffix=""><span class="scount">0</span></span>
+      <span class="stat-num grad-text" data-target="4" data-suffix=""><span class="scount">0</span></span>
       <span class="stat-label">Tools Built</span>
     </div>
     <div class="stat-item">
@@ -1426,7 +1437,7 @@ function animateCount(el, target, duration, prefix = '', suffix = '') {
 // Hero metrics (single shot on load after short delay)
 setTimeout(() => {
   const m = document.querySelector('.metric-num[data-target="3"] .count-val');
-  if (m) animateCount(m, 3, 1800);
+  if (m) animateCount(m, 4, 1800);
 }, 800);
 
 // Stats band counters
@@ -1436,7 +1447,7 @@ const statsObs = new IntersectionObserver((entries) => {
   if (entries[0].isIntersecting && !statsDone) {
     statsDone = true;
     const counters = document.querySelectorAll('#stats .scount');
-    const targets = [3, 0, 0, 0];
+    const targets = [4, 0, 0, 0];
     counters.forEach((el, i) => animateCount(el, targets[i], 1800));
   }
 }, { threshold: 0.3 });
