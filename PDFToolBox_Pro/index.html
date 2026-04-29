@@ -608,6 +608,10 @@ async function activateLicense(key){
   return true;
 }
 
+// Define $ early so license code can use it
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+
 // Init: check license before showing app
 (async()=>{
   const ok=await checkLicense();
@@ -642,8 +646,6 @@ $('#deactivateLink').addEventListener('click',()=>{
 });
 
 /* ─── App core ──────────────────────────────────────────── */
-const $=s=>document.querySelector(s);
-const $$=s=>[...document.querySelectorAll(s)];
 const body=$('#previewBody'),fileInput=$('#fileInput'),filesInput=$('#filesInput');
 const fileInfo=$('#fileInfo'),previewMeta=$('#previewMeta'),toastEl=$('#toast');
 
