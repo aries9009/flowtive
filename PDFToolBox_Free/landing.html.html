@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PDFToolbox Free — Offline PDF Split, Merge & Extract</title>
+<meta name="description" content="Split, merge, and extract PDF pages — entirely in your browser. Nothing ever leaves your device. Free forever."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+/* =============================================
+   TOKENS & RESET
+   ============================================= */
+:root {
+  --ink:        #0f0f14;
+  --ink-2:      #3a3a45;
+  --muted:      #6b6b78;
+  --muted-2:    #9999a5;
+  --accent:     #ff4d24;
+  --accent-2:   #ff8566;
+  --pro:        #7c3aed;
+  --pro-2:      #a78bfa;
+  --cream:      #f5f3ef;
+  --cream-2:    #ece9e3;
+
+  --glass-bg:      rgba(255,255,255,0.55);
+  --glass-bg-2:    rgba(255,255,255,0.75);
+  --glass-border:  rgba(255,255,255,0.72);
+  --glass-shadow:  0 8px 32px rgba(15,15,40,0.08), 0 2px 8px rgba(15,15,40,0.04);
+  --glass-hover:   0 20px 60px rgba(15,15,40,0.14), 0 4px 16px rgba(15,15,40,0.06);
+
+  --font:   "Outfit", system-ui, sans-serif;
+  --serif:  "Instrument Serif", Georgia, serif;
+  --mono:   "JetBrains Mono", monospace;
+
+  --r-sm: 10px; --r-md: 16px; --r-lg: 22px; --r-xl: 30px; --r-2xl: 40px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:var(--font);font-weight:400;line-height:1.6;
+  color:var(--ink);background:var(--cream);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--accent);color:#fff}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(15,15,20,0.15);border-radius:999px}
+
+/* =============================================
+   AMBIENT BACKGROUND
+   ============================================= */
+.bg-fixed {
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% -10%, #ffd6c2 0%, transparent 55%),
+    radial-gradient(ellipse at 95% 90%, #c9d7ff 0%, transparent 50%),
+    radial-gradient(ellipse at 5% 80%, #e4b9ff 0%, transparent 45%),
+    linear-gradient(180deg, #fff8f3 0%, #f5f3ef 60%, #ede8ff 100%);
+}
+.bg-orb {
+  position:fixed;border-radius:50%;pointer-events:none;z-index:-1;
+  filter:blur(80px);opacity:0.5;
+}
+.bg-orb-1{
+  width:55vw;height:55vw;top:-15%;left:-10%;
+  background:radial-gradient(circle, #ffb4a0 0%, #ff8966 50%, transparent 70%);
+  animation:orbDrift1 32s ease-in-out infinite alternate;
+}
+.bg-orb-2{
+  width:50vw;height:50vw;bottom:-20%;right:-10%;
+  background:radial-gradient(circle, #b9c8ff 0%, #8aa7ff 50%, transparent 70%);
+  animation:orbDrift2 38s ease-in-out infinite alternate;
+}
+.bg-orb-3{
+  width:35vw;height:35vw;top:35%;left:40%;
+  background:radial-gradient(circle, #d4b8ff 0%, #a78bfa 50%, transparent 70%);
+  animation:orbDrift3 44s ease-in-out infinite alternate;
+  opacity:0.3;
+}
+.noise{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0.35;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode:overlay;
+}
+@keyframes orbDrift1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(7%,5%) scale(1.1)}}
+@keyframes orbDrift2{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-5%,-4%) scale(1.08)}}
+@keyframes orbDrift3{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-6%,7%) scale(1.12)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* =============================================
+   NAV
+   ============================================= */
+.nav {
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  z-index:100;width:calc(100% - 48px);max-width:1100px;
+  padding:12px 22px;
+  background:rgba(255,255,255,0.65);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--glass-border);border-radius:999px;
+  box-shadow:var(--glass-shadow);
+  display:flex;align-items:center;
+  transition:background .3s,box-shadow .3s;
+}
+.nav.scrolled{background:rgba(255,255,255,.85);box-shadow:0 12px 40px rgba(15,15,40,.12)}
+.nav-brand{
+  display:flex;align-items:center;gap:10px;
+  font-weight:700;font-size:15px;letter-spacing:-.02em;color:var(--ink);flex-shrink:0;
+}
+.nav-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:11px;
+  box-shadow:0 4px 12px rgba(255,77,36,.35);
+}
+.nav-badge{
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,77,36,.1);color:var(--accent);padding:3px 8px;border-radius:999px;
+}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-free-link{
+  padding:7px 14px;font-size:13px;font-weight:500;color:var(--muted);border-radius:999px;
+  transition:color .15s,background .15s;
+}
+.nav-free-link:hover{color:var(--ink);background:rgba(15,15,20,.06)}
+.btn-pro{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 20px;font-size:13px;font-weight:700;
+  color:#fff;background:linear-gradient(135deg,var(--pro),var(--pro-2));
+  border-radius:999px;letter-spacing:-.01em;
+  box-shadow:0 4px 14px rgba(124,58,237,.3);
+  transition:all .2s;white-space:nowrap;
+}
+.btn-pro:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(124,58,237,.4)}
+@media(max-width:640px){.nav{width:calc(100% - 32px);top:14px}.nav-free-link{display:none}}
+
+/* =============================================
+   HERO
+   ============================================= */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:140px 24px 80px;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;
+  background:rgba(255,77,36,.1);border:1px solid rgba(255,77,36,.2);
+  border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:32px;
+  animation:fadeUp .6s ease both;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulseDot 2s infinite}
+.hero h1{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(52px,8vw,96px);line-height:1.0;
+  letter-spacing:-.03em;color:var(--ink);max-width:14ch;margin:0 auto 24px;
+  animation:fadeUp .7s .1s ease both;
+}
+.hero h1 em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:52ch;
+  margin:0 auto 36px;font-weight:400;line-height:1.55;
+  animation:fadeUp .7s .2s ease both;
+}
+.hero-ctas{
+  display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;
+  margin-bottom:32px;animation:fadeUp .7s .3s ease both;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 28px;font-size:15px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-radius:999px;box-shadow:0 6px 20px rgba(255,77,36,.35);
+  letter-spacing:-.01em;transition:all .2s;white-space:nowrap;
+  font-family:var(--font);cursor:pointer;border:none;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(255,77,36,.45);filter:brightness(1.05)}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 24px;font-size:14px;font-weight:600;color:var(--ink);
+  background:rgba(255,255,255,.7);border:1px solid rgba(15,15,20,.12);
+  border-radius:999px;backdrop-filter:blur(12px);letter-spacing:-.01em;
+  transition:all .2s;font-family:var(--font);cursor:pointer;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.9);box-shadow:0 8px 24px rgba(15,15,40,.08);transform:translateY(-1px)}
+.hero-proof{
+  display:flex;align-items:center;gap:24px;justify-content:center;flex-wrap:wrap;
+  font-size:13px;color:var(--muted);font-weight:500;
+  animation:fadeUp .7s .35s ease both;
+  margin-bottom:48px;
+}
+.hero-proof span{display:flex;align-items:center;gap:6px}
+.hero-proof span::before{content:"✓";color:#2ea44f;font-weight:800}
+
+/* Free tier limit banner */
+.limit-band{
+  background:rgba(124,58,237,.07);
+  border:1px solid rgba(124,58,237,.2);
+  border-radius:var(--r-lg);
+  padding:18px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  max-width:720px;width:100%;
+  animation:fadeUp .7s .4s ease both;
+}
+.limit-band p{font-size:13.5px;color:var(--pro);font-weight:500}
+.limit-band p strong{font-weight:700}
+.limit-band-cta{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;font-size:13px;font-weight:700;
+  background:var(--pro);color:#fff;border-radius:999px;
+  white-space:nowrap;transition:all .15s;
+  box-shadow:0 4px 12px rgba(124,58,237,.3);
+}
+.limit-band-cta:hover{background:#6d28d9;transform:translateY(-1px)}
+
+/* =============================================
+   TICKER
+   ============================================= */
+.ticker-wrap{
+  overflow:hidden;padding:16px 0;
+  border-top:1px solid rgba(15,15,20,.08);
+  border-bottom:1px solid rgba(15,15,20,.08);
+  background:rgba(255,255,255,.3);backdrop-filter:blur(8px);
+}
+.ticker{display:flex;gap:0;white-space:nowrap;animation:tickerScroll 32s linear infinite}
+.ticker-item{
+  display:inline-flex;align-items:center;gap:12px;padding:0 28px;
+  font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.01em;text-transform:uppercase;
+}
+.ticker-item strong{color:var(--accent);font-family:var(--mono)}
+.ticker-sep{color:var(--accent);opacity:0.5;font-size:16px}
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* =============================================
+   REVEAL / ANIMATIONS
+   ============================================= */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+/* =============================================
+   LAYOUT HELPERS
+   ============================================= */
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+.section{padding:100px 0;overflow:hidden}
+.section-tag{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.section-tag::before{content:"";display:block;width:24px;height:2px;background:var(--accent);border-radius:2px}
+h2.section-title{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(36px,5vw,60px);letter-spacing:-.03em;line-height:1.05;
+  color:var(--ink);margin-bottom:16px;
+}
+h2.section-title em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.section-sub{font-size:17px;color:var(--muted);max-width:52ch;line-height:1.6;font-weight:400}
+.text-center{text-align:center}
+
+/* =============================================
+   HOW IT WORKS
+   ============================================= */
+.steps-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px;
+}
+@media(max-width:800px){.steps-grid{grid-template-columns:1fr}}
+.step-card{
+  background:rgba(255,255,255,.52);border:1px solid var(--glass-border);
+  border-radius:var(--r-xl);padding:32px 28px;
+  backdrop-filter:blur(20px);box-shadow:var(--glass-shadow);
+  position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;
+}
+.step-card:hover{transform:translateY(-6px);box-shadow:var(--glass-hover)}
+.step-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);
+}
+.step-num{
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;
+  color:var(--accent);text-transform:uppercase;margin-bottom:18px;
+  display:flex;align-items:center;gap:8px;
+}
+.step-num::after{content:"";flex:1;height:1px;background:rgba(255,77,36,.2)}
+.step-visual{
+  width:52px;height:52px;border-radius:13px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:18px;
+  box-shadow:0 6px 18px rgba(255,77,36,.3);
+  color:#fff;
+}
+.step-card h3{font-size:19px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-.02em}
+.step-card p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* =============================================
+   FEATURES
+   ============================================= */
+.features-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px;
+}
+@media(max-width:960px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.features-grid{grid-template-columns:1fr}}
+.feature-card{
+  background:rgba(255,255,255,.48);border:1px solid var(--glass-border);
+  border-radius:var(--r-lg);padding:26px 24px;backdrop-filter:blur(16px);
+  transition:transform .3s,box-shadow .3s,background .3s;position:relative;
+}
+.feature-card:hover{transform:translateY(-4px);box-shadow:var(--glass-hover);background:rgba(255,255,255,.68)}
+.feature-icon{
+  margin-bottom:14px;width:50px;height:50px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,77,36,.08);border-radius:12px;
+  color:var(--accent);
+}
+.feature-card h4{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.015em}
+.feature-card p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.feature-limit-tag{
+  display:inline-block;margin-top:12px;padding:3px 10px;
+  font-size:11px;font-weight:700;background:rgba(124,58,237,.1);
+  color:var(--pro);border-radius:999px;letter-spacing:.04em;text-transform:uppercase;font-family:var(--mono);
+}
+.feature-free-tag{
+  display:inline-block;margin-top:12px;padding:3px 10px;
+  font-size:11px;font-weight:700;background:rgba(46,164,79,.1);
+  color:#2a7a40;border-radius:999px;letter-spacing:.04em;text-transform:uppercase;font-family:var(--mono);
+}
+
+/* =============================================
+   PRIVACY BAND
+   ============================================= */
+.privacy-band{
+  background:rgba(255,255,255,.55);border:1px solid var(--glass-border);
+  border-radius:var(--r-xl);padding:44px 48px;
+  box-shadow:var(--glass-shadow);backdrop-filter:blur(20px);
+  display:flex;align-items:flex-start;gap:40px;
+}
+@media(max-width:700px){.privacy-band{flex-direction:column;padding:32px 28px}}
+.privacy-icon{flex-shrink:0;display:flex;align-items:flex-start;color:var(--accent)}
+.privacy-content h3{
+  font-family:var(--serif);font-style:italic;font-size:28px;
+  color:var(--ink);margin-bottom:10px;letter-spacing:-.02em;line-height:1.1;
+}
+.privacy-content p{font-size:14px;color:var(--muted);line-height:1.65;max-width:60ch}
+.privacy-checks{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.privacy-check{
+  display:flex;align-items:center;gap:10px;
+  font-size:13.5px;color:var(--ink-2);font-weight:500;
+}
+.privacy-check::before{content:"✓";color:#2ea44f;font-weight:800;font-size:15px;flex-shrink:0}
+
+/* =============================================
+   UPGRADE CTA
+   ============================================= */
+.upgrade-section{padding:40px 0 100px}
+.upgrade-card{
+  background:rgba(255,255,255,.55);
+  border:1.5px solid rgba(124,58,237,.25);
+  border-radius:var(--r-2xl);padding:56px 48px;
+  max-width:700px;margin:0 auto;
+  backdrop-filter:blur(24px);box-shadow:var(--glass-shadow);
+  text-align:center;position:relative;overflow:hidden;
+}
+.upgrade-card::before{
+  content:"";position:absolute;inset:-1px;border-radius:calc(var(--r-2xl) + 1px);
+  background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(167,139,250,.2),rgba(255,77,36,.15));
+  z-index:-1;
+}
+.upgrade-card::after{
+  content:"";position:absolute;inset:1px;border-radius:calc(var(--r-2xl) - 1px);
+  background:rgba(245,243,239,.94);z-index:-1;
+}
+.upgrade-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--pro);margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.upgrade-eyebrow::before,.upgrade-eyebrow::after{content:"";height:1px;width:32px;background:rgba(124,58,237,.3)}
+.upgrade-card h2{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(32px,4vw,48px);letter-spacing:-.03em;color:var(--ink);
+  margin-bottom:8px;line-height:1.05;
+}
+.upgrade-price{
+  font-size:clamp(56px,7vw,80px);font-weight:800;letter-spacing:-.05em;
+  color:var(--ink);line-height:1;margin:20px 0 6px;font-family:var(--font);
+}
+.upgrade-price sup{font-size:28px;vertical-align:top;margin-top:12px;font-weight:600;letter-spacing:0}
+.upgrade-period{font-size:15px;color:var(--muted);margin-bottom:32px;font-weight:400}
+.upgrade-features-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  max-width:480px;margin:0 auto 36px;text-align:left;
+}
+@media(max-width:500px){.upgrade-features-grid{grid-template-columns:1fr}}
+.upgrade-feature{
+  display:flex;align-items:flex-start;gap:9px;
+  font-size:13.5px;color:var(--ink-2);font-weight:500;
+}
+.upgrade-feature::before{content:"✓";color:var(--pro);font-weight:800;flex-shrink:0;margin-top:1px}
+.btn-upgrade{
+  display:inline-flex;align-items:center;gap:8px;padding:14px 32px;
+  font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--pro),var(--pro-2));
+  color:#fff;border-radius:999px;
+  box-shadow:0 6px 20px rgba(124,58,237,.35);
+  letter-spacing:-.01em;transition:all .2s;font-family:var(--font);
+}
+.btn-upgrade:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,58,237,.45)}
+.upgrade-note{font-size:12.5px;color:var(--muted);margin-top:14px}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+footer{
+  padding:40px 24px;
+  border-top:1px solid rgba(15,15,20,.08);
+}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-top{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:20px;margin-bottom:24px;
+}
+.footer-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.02em}
+.footer-links{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.footer-links a{padding:6px 12px;font-size:13px;font-weight:500;color:var(--muted);border-radius:999px;transition:color .15s,background .15s}
+.footer-links a:hover{color:var(--ink);background:rgba(15,15,20,.05)}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:20px;border-top:1px solid rgba(15,15,20,.07);gap:16px;flex-wrap:wrap;
+}
+.footer-copy{font-size:13px;color:var(--muted)}
+.footer-status{
+  display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#1f8a43;
+  background:rgba(46,164,79,.1);padding:5px 11px;border-radius:999px;
+}
+.footer-status::before{content:"";width:6px;height:6px;border-radius:50%;background:#2ea44f;animation:pulseDot 2s infinite}
+</style>
+</head>
+<body>
+
+<div class="bg-fixed"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+<div class="noise"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="./free.html" class="nav-brand">
+    <div class="nav-mark">PDF</div>
+    PDFToolbox
+    <span class="nav-badge">Free</span>
+  </a>
+  <div class="nav-right">
+    <a href="#features" class="nav-free-link">Features</a>
+    <a href="#upgrade" class="nav-free-link">Pro</a>
+    <a href="./pro-landing.html" class="btn-pro">Get Pro — $29 →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Free Forever · No Sign-Up · Nothing Uploaded
+  </div>
+  <h1>PDF tools that were<br/><em>never this private.</em></h1>
+  <p class="hero-sub">
+    Split, merge, and extract PDF pages — entirely in your browser. Your documents never leave your machine. Not for a millisecond.
+  </p>
+  <div class="hero-ctas">
+    <a href="./index.html" class="btn-primary">Open Free Tool →</a>
+    <a href="./pro-landing.html" class="btn-secondary">
+      ✦ View Pro version
+    </a>
+  </div>
+  <div class="hero-proof">
+    <span>Zero uploads</span>
+    <span>Works offline</span>
+    <span>No account needed</span>
+    <span>Open source</span>
+  </div>
+  <div class="limit-band">
+    <p><strong>Free version:</strong> PDFs up to 10 pages · Merge up to 2 files · No bulk export</p>
+    <a href="./pro-landing.html" class="limit-band-cta">Upgrade to Pro — unlimited →</a>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item">Split PDFs by page range <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Merge files locally <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Extract pages visually <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Zero server uploads <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>100% in your browser</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Works offline <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">No login required <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>pdf-lib 1.17.1</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Open source on GitHub <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Free forever <span class="ticker-sep">·</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item">Split PDFs by page range <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Merge files locally <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Extract pages visually <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Zero server uploads <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>100% in your browser</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Works offline <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">No login required <span class="ticker-sep">·</span></span>
+    <span class="ticker-item"><strong>pdf-lib 1.17.1</strong> <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Open source on GitHub <span class="ticker-sep">·</span></span>
+    <span class="ticker-item">Free forever <span class="ticker-sep">·</span></span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center">How it Works</div>
+    <h2 class="section-title reveal">Three steps.<br/><em>Zero uploads.</em></h2>
+    <p class="section-sub reveal reveal-delay-1" style="margin:0 auto">
+      PDFToolbox processes everything locally using WebAssembly-powered PDF engines baked directly into the page. There is no step where your file leaves your device.
+    </p>
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num">01 — Drop</div>
+        <div class="step-visual"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+        <h3>Drop your PDF</h3>
+        <p>Drag a PDF onto the dropzone, or click to browse. The file is read locally by your browser. No upload happens. File info appears instantly.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num">02 — Configure</div>
+        <div class="step-visual"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></div>
+        <h3>Pick your operation</h3>
+        <p>Switch between Split, Extract, or Merge. Set page ranges, click thumbnails to select, or queue files for merging. Everything is visual and immediate.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">03 — Download</div>
+        <div class="step-visual"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <h3>Download the result</h3>
+        <p>Hit the action button. Your browser processes the PDF in milliseconds and hands the file directly to your downloads folder — no server ever involved.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-tag reveal">What's Included</div>
+    <h2 class="section-title reveal">Three tools.<br/><em>Free, always.</em></h2>
+    <p class="section-sub reveal reveal-delay-1">The essentials, done right. No watermarks, no timers, no account — just clean results in seconds.</p>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div>
+        <h4>Split with range syntax</h4>
+        <p>Enter a range like <code style="font-family:var(--mono);font-size:12px;background:rgba(255,77,36,.1);color:var(--accent);padding:2px 5px;border-radius:4px">1–3, 5, 8–10</code> and extract exactly those pages. Individual pages, ranges, or mixed combos — all supported.</p>
+        <span class="feature-limit">10 pages max</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <h4>Visual page selector</h4>
+        <p>See every page rendered as a thumbnail before extracting. Click to select, click again to deselect. Your click order is preserved in the output PDF.</p>
+        <span class="feature-limit">10 pages max</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+        <h4>Multi-file merge</h4>
+        <p>Queue two PDFs and drag to reorder before merging. Each file shows page count and size. Merge runs entirely in your browser — zero server contact.</p>
+        <span class="feature-limit">2 files · 10 pages each</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h4>Offline capable</h4>
+        <p>Once the page loads, internet isn't required. The PDF engines cache locally. Works on planes, air-gapped networks, anywhere without connectivity.</p>
+        <span class="feature-free-tag">Fully free</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <h4>Zero-latency processing</h4>
+        <p>No server roundtrip means no waiting. Operations complete in milliseconds for typical documents — limited only by your device's CPU.</p>
+        <span class="feature-free-tag">Fully free</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2" style="background:rgba(124,58,237,.05);border-color:rgba(124,58,237,.18)">
+        <div class="feature-icon" style="background:rgba(124,58,237,.1);color:var(--pro)"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div>
+        <h4 style="color:var(--pro)">Need more? Go Pro.</h4>
+        <p>Unlimited pages, 10 tools including compress, watermark, rotate, encrypt, and PDF-to-image export. One payment, yours forever.</p>
+        <a href="./pro-landing.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;font-weight:700;color:var(--pro)">See Pro features →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section class="section">
+  <div class="container">
+    <div class="privacy-band reveal">
+      <div class="privacy-icon"><svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+      <div class="privacy-content">
+        <h3>Privacy isn't a feature — it's the architecture.</h3>
+        <p>Most "free" PDF tools upload your documents to servers you don't control. You hand over a sensitive contract or a medical record and hope for the best. PDFToolbox is structurally different: your files are read into browser memory, processed by JavaScript running on your machine, and downloaded directly to your device. There are no servers, no logs, no analytics on your files, and no way for us to see your documents even if we wanted to.</p>
+        <div class="privacy-checks">
+          <div class="privacy-check">Zero HTTP requests carrying your file data — verifiable in DevTools</div>
+          <div class="privacy-check">Files garbage-collected when you close the tab — no localStorage, no IndexedDB</div>
+          <div class="privacy-check">Works fully offline once the page has loaded once</div>
+          <div class="privacy-check">Open source and auditable on GitHub</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UPGRADE CTA -->
+<section class="upgrade-section" id="upgrade">
+  <div class="container">
+    <div class="upgrade-card reveal">
+      <div class="upgrade-eyebrow">PDFToolbox Pro</div>
+      <h2>Ten tools.<br/>No limits.</h2>
+      <div class="upgrade-price"><sup>$</sup>29</div>
+      <p class="upgrade-period">Pay once. Own it forever. No subscription ever.</p>
+      <div class="upgrade-features-grid">
+        <div class="upgrade-feature">Unlimited page counts</div>
+        <div class="upgrade-feature">Compress PDF size</div>
+        <div class="upgrade-feature">Add watermarks</div>
+        <div class="upgrade-feature">Rotate & reorder pages</div>
+        <div class="upgrade-feature">AES-256 encryption viewer</div>
+        <div class="upgrade-feature">Export pages as PNG/JPEG</div>
+        <div class="upgrade-feature">Merge unlimited files</div>
+        <div class="upgrade-feature">Everything still 100% offline</div>
+      </div>
+      <a href="./pro-landing.html" class="btn-upgrade">See PDFToolbox Pro →</a>
+      <p class="upgrade-note">Same privacy guarantee — everything runs locally, always.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="nav-mark">PDF</div>
+        PDFToolbox
+      </div>
+      <div class="footer-links">
+        <a href="./free.html">Free Tool</a>
+        <a href="./pro-landing.html">Pro Version</a>
+        <a href="#how-it-works">How it Works</a>
+        <a href="#features">Features</a>
+        <a href="https://github.com/aries9009/flowtive" target="_blank" rel="noopener">GitHub</a>
+        <a href="mailto:thelastride1825@gmail.com">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 PDFToolbox · Open source · No rights reserved worth worrying about.</span>
+      <div class="footer-status">All processing runs locally</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Sticky nav
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, {passive:true});
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:0.08, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
