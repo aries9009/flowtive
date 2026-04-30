@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Terms & Conditions — Flowtive</title>
+<meta name="description" content="Terms and Conditions for Flowtive products including PDFToolBox Pro, PassForge, and PromptVault."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060810;--sf:#0c1020;--sf2:#111827;
+  --bd:rgba(240,244,255,0.06);--bdh:rgba(0,229,163,0.22);
+  --ac:#00e5a3;--acd:rgba(0,229,163,0.08);
+  --t1:#f0f4ff;--t2:rgba(240,244,255,0.60);--t3:rgba(240,244,255,0.28);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;line-height:1.7;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(0,229,163,0.2);border-radius:99px;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;padding:14px 0;background:rgba(6,8,16,0.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);}
+.nav-inner{max-width:860px;margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-mark{width:30px;height:30px;background:linear-gradient(135deg,rgba(0,229,163,0.15),rgba(77,159,255,0.15));border:1px solid var(--bdh);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:16px;height:16px;}
+.logo-name{font-size:16px;font-weight:800;color:var(--t1);}
+.logo-name span{color:var(--ac);}
+.back-link{font-size:13px;font-weight:600;color:var(--t2);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
+.back-link:hover{color:var(--ac);}
+.back-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* HERO */
+.page-hero{padding:72px 28px 48px;text-align:center;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,rgba(0,229,163,0.03) 0%,transparent 100%);}
+.page-hero .pill{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ac);background:var(--acd);border:1px solid var(--bdh);border-radius:99px;padding:5px 14px;margin-bottom:20px;}
+.page-hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;letter-spacing:-1.5px;margin-bottom:14px;}
+.page-hero p{font-size:15px;color:var(--t2);max-width:520px;margin:0 auto;}
+.effective{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--t3);margin-top:14px;}
+
+/* CONTENT */
+.content{max-width:860px;margin:0 auto;padding:56px 28px 100px;}
+
+/* TOC */
+.toc{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:28px 32px;margin-bottom:52px;}
+.toc-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:16px;}
+.toc ol{list-style:none;counter-reset:toc;display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;}
+@media(max-width:580px){.toc ol{grid-template-columns:1fr;}}
+.toc ol li{counter-increment:toc;}
+.toc ol li a{font-size:14px;color:var(--t2);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
+.toc ol li a::before{content:counter(toc,decimal-leading-zero);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ac);opacity:.7;}
+.toc ol li a:hover{color:var(--ac);}
+
+/* SECTIONS */
+.tc-section{margin-bottom:52px;}
+.tc-section:last-child{margin-bottom:0;}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--ac);letter-spacing:.06em;display:block;margin-bottom:6px;}
+.tc-section h2{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--bd);}
+.tc-section p{font-size:15px;color:var(--t2);margin-bottom:14px;}
+.tc-section p:last-child{margin-bottom:0;}
+.tc-section ul,.tc-section ol{padding-left:0;list-style:none;margin-bottom:14px;}
+.tc-section ul li,.tc-section ol li{font-size:15px;color:var(--t2);padding:7px 0;padding-left:20px;position:relative;border-bottom:1px solid rgba(240,244,255,0.04);}
+.tc-section ul li:last-child,.tc-section ol li:last-child{border-bottom:none;}
+.tc-section ul li::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--ac);opacity:.6;}
+.tc-section ol{counter-reset:ol;}
+.tc-section ol li{counter-increment:ol;}
+.tc-section ol li::before{content:counter(ol)".";font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ac);position:absolute;left:0;top:8px;}
+.highlight-box{background:var(--sf);border:1px solid var(--bdh);border-radius:12px;padding:20px 24px;margin:18px 0;}
+.highlight-box p{margin-bottom:0;color:var(--t1);}
+.highlight-box strong{color:var(--ac);}
+
+/* PRICING TABLE */
+.pricing-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;}
+.pricing-table th{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);padding:10px 16px;text-align:left;border-bottom:1px solid var(--bd);}
+.pricing-table td{padding:12px 16px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;}
+.pricing-table tr:last-child td{border-bottom:none;}
+.pricing-table .product-name{color:var(--t1);font-weight:600;}
+.pricing-table .price-val{color:var(--ac);font-family:'JetBrains Mono',monospace;font-weight:600;}
+.pricing-table .free-badge{color:#86efac;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.pricing-table tr:hover td{background:rgba(240,244,255,0.02);}
+.table-wrap{border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--bd);padding:32px 28px;max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+footer span{font-size:13px;color:var(--t3);}
+footer a{font-size:13px;color:var(--t2);text-decoration:none;transition:color .2s;}
+footer a:hover{color:var(--ac);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none"><rect x="1" y="1" width="7" height="7" rx="2" fill="#00e5a3"/><rect x="10" y="1" width="7" height="7" rx="2" fill="#4d9fff" opacity="0.7"/><rect x="1" y="10" width="7" height="7" rx="2" fill="#4d9fff" opacity="0.7"/><rect x="10" y="10" width="7" height="7" rx="2" fill="#00e5a3"/></svg>
+      </div>
+      <span class="logo-name">Flow<span>tive</span></span>
+    </a>
+    <a href="/" class="back-link">
+      <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
+      Back to site
+    </a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="pill">Legal</div>
+  <h1>Terms &amp; Conditions</h1>
+  <p>Please read these terms carefully before purchasing or using any Flowtive product.</p>
+  <div class="effective">Last updated: April 30, 2026 &nbsp;&middot;&nbsp; Effective immediately</div>
+</div>
+
+<div class="content">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#s1">Acceptance of Terms</a></li>
+      <li><a href="#s2">Products &amp; Pricing</a></li>
+      <li><a href="#s3">License Grant</a></li>
+      <li><a href="#s4">Digital Delivery</a></li>
+      <li><a href="#s5">Refund Policy</a></li>
+      <li><a href="#s6">Prohibited Uses</a></li>
+      <li><a href="#s7">Intellectual Property</a></li>
+      <li><a href="#s8">Privacy &amp; Data</a></li>
+      <li><a href="#s9">Disclaimer of Warranties</a></li>
+      <li><a href="#s10">Limitation of Liability</a></li>
+      <li><a href="#s11">Changes to Terms</a></li>
+      <li><a href="#s12">Contact</a></li>
+    </ol>
+  </div>
+
+  <!-- 1 -->
+  <div class="tc-section" id="s1">
+    <span class="section-num">01</span>
+    <h2>Acceptance of Terms</h2>
+    <p>By accessing the Flowtive website at <strong>flowtive.ariestayyab46845.workers.dev</strong> ("the Site"), downloading any Flowtive product, or completing a purchase, you ("the User") agree to be bound by these Terms &amp; Conditions in full. If you do not agree with any part of these terms, you must not use the Site or its products.</p>
+    <p>These terms apply to all visitors, users, and purchasers, regardless of whether you access the Site directly or through a third-party marketplace or payment processor (including Lemon Squeezy).</p>
+  </div>
+
+  <!-- 2 -->
+  <div class="tc-section" id="s2">
+    <span class="section-num">02</span>
+    <h2>Products &amp; Pricing</h2>
+    <p>Flowtive currently offers the following products:</p>
+
+    <div class="table-wrap">
+      <table class="pricing-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="product-name">PDFToolBox Pro</td>
+            <td>Paid &mdash; One-Time</td>
+            <td class="price-val">$29.00 USD<br/><span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t3);font-weight:400;">excl. taxes &mdash; no hidden fees</span></td>
+            <td>10 offline PDF tools (Split, Merge, Extract, Compress, Watermark, Rotate, Reorder, Remove Pages, AES-256 Encrypted Viewer, Export to PNG/JPEG). Unlimited pages. No subscription. All future tool additions included.</td>
+          </tr>
+          <tr>
+            <td class="product-name">PDFToolBox Free</td>
+            <td>Free</td>
+            <td class="free-badge">$0.00</td>
+            <td>3 core PDF tools (Split, Merge up to 2 files, Extract) with a 10-page limit per operation. No payment required.</td>
+          </tr>
+          <tr>
+            <td class="product-name">PassForge</td>
+            <td>Free</td>
+            <td class="free-badge">$0.00</td>
+            <td>Offline password manager and generator with AES-256-GCM encryption. PBKDF2-SHA256 at 310,000 iterations. No account required.</td>
+          </tr>
+          <tr>
+            <td class="product-name">PromptVault</td>
+            <td>Free</td>
+            <td class="free-badge">$0.00</td>
+            <td>Offline AI prompt library with variable templates, live preview, tagging, and import/export. No account required.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="highlight-box">
+      <p><strong>One-Time Payment Model:</strong> PDFToolBox Pro is sold for a single payment of $29.00 USD (excluding applicable taxes). There is no subscription, no renewal fee, no &ldquo;Pro+&rdquo; tier, and no hidden fees. All future tool additions to PDFToolBox Pro are included at no additional cost to existing purchasers.</p>
+    </div>
+
+    <p>All prices are listed in US Dollars (USD) and exclude any applicable taxes. Transaction fees charged by the payment processor are not added on top &mdash; there are no hidden fees. Flowtive reserves the right to adjust pricing at any time; however, any price change will not affect purchases already completed.</p>
+  </div>
+
+  <!-- 3 -->
+  <div class="tc-section" id="s3">
+    <span class="section-num">03</span>
+    <h2>License Grant</h2>
+    <p>Upon completing a valid purchase of PDFToolBox Pro, Flowtive grants you a non-exclusive, non-transferable, worldwide, perpetual license to:</p>
+    <ul>
+      <li>Download and use the product for your personal or internal business purposes</li>
+      <li>Install and use the product on any number of devices that you personally own or control</li>
+      <li>Retain access to the product file permanently, including all future versions provided under the same purchase</li>
+    </ul>
+    <p>This license does not permit you to:</p>
+    <ul>
+      <li>Resell, sublicense, distribute, or share the paid product file with third parties</li>
+      <li>Represent the product as your own creation or remove existing copyright notices</li>
+      <li>Use the product in any way that violates applicable law</li>
+    </ul>
+    <p>Free products (PDFToolBox Free, PassForge, PromptVault) are distributed under the MIT License. You are free to use, copy, modify, and distribute them in accordance with that license.</p>
+  </div>
+
+  <!-- 4 -->
+  <div class="tc-section" id="s4">
+    <span class="section-num">04</span>
+    <h2>Digital Delivery &amp; Fulfillment</h2>
+    <p>All Flowtive products are delivered as <strong>instant digital downloads</strong>. There is no physical shipment.</p>
+    <ul>
+      <li>Upon successful payment, your <strong>license key and download link</strong> will be delivered to your email the same day &mdash; typically within minutes of purchase</li>
+      <li>Delivery is facilitated through our payment processor (Lemon Squeezy). A download link and purchase confirmation will be sent to the email address you provide at checkout</li>
+      <li>Each product is a self-contained HTML file that runs entirely within your web browser &mdash; no installation, no account creation, and no internet connection is required after download</li>
+      <li>If you do not receive your download link within 30 minutes of purchase, contact us at <a href="mailto:thelastride1825@gmail.com" style="color:var(--ac)">thelastride1825@gmail.com</a> and we will resolve it promptly</li>
+    </ul>
+  </div>
+
+  <!-- 5 -->
+  <div class="tc-section" id="s5">
+    <span class="section-num">05</span>
+    <h2>Refund Policy</h2>
+    <div class="highlight-box">
+      <p><strong>7-Day Refund Window:</strong> We offer a full refund within <strong>7 days</strong> of purchase if you are not satisfied with your purchase, no questions asked. To request a refund, email <a href="mailto:thelastride1825@gmail.com" style="color:var(--ac)">thelastride1825@gmail.com</a> with your order number.</p>
+    </div>
+    <p>Please note the following conditions:</p>
+    <ul>
+      <li>Refund requests must be submitted within 7 calendar days of the original purchase date</li>
+      <li>Refunds are processed back to the original payment method via Lemon Squeezy and may take 5&ndash;10 business days to appear</li>
+      <li>Once a refund is issued, your license to use the paid product is revoked and you must delete any downloaded copies</li>
+      <li>Free products are not subject to any refund policy as no payment is involved</li>
+    </ul>
+  </div>
+
+  <!-- 6 -->
+  <div class="tc-section" id="s6">
+    <span class="section-num">06</span>
+    <h2>Prohibited Uses</h2>
+    <p>You agree not to use any Flowtive product or the Site for any of the following purposes:</p>
+    <ul>
+      <li>Any activity that violates applicable local, national, or international law or regulation</li>
+      <li>Processing, storing, or transmitting content that is unlawful, harmful, threatening, defamatory, or infringing on third-party rights</li>
+      <li>Attempting to reverse-engineer, decompile, or derive the source code of the paid product in order to redistribute it commercially (note: free tools are already open source under MIT)</li>
+      <li>Misrepresenting your identity or affiliation when contacting Flowtive support</li>
+      <li>Using automated tools to scrape, crawl, or harvest data from the Site</li>
+    </ul>
+  </div>
+
+  <!-- 7 -->
+  <div class="tc-section" id="s7">
+    <span class="section-num">07</span>
+    <h2>Intellectual Property</h2>
+    <p>All content on the Flowtive website, including but not limited to text, design, graphics, logos, and product code (except where explicitly noted as MIT-licensed), is the property of Flowtive and its creator, Tayyab, and is protected by applicable intellectual property laws.</p>
+    <p>The Flowtive name, logo, and product names (PassForge, PromptVault, PDFToolBox) are trademarks of Flowtive. You may not use them without prior written permission except to accurately refer to the products.</p>
+    <p>Open-source components used within the products are governed by their respective licenses (MIT, Apache 2.0, etc.) as noted within the product files.</p>
+  </div>
+
+  <!-- 8 -->
+  <div class="tc-section" id="s8">
+    <span class="section-num">08</span>
+    <h2>Privacy &amp; Data</h2>
+    <p>Flowtive is built on an <strong>offline-first, zero-telemetry</strong> architecture. This section describes what data is and is not collected.</p>
+    <p><strong>What we do NOT collect:</strong></p>
+    <ul>
+      <li>No files, documents, or passwords you process using any Flowtive tool are ever transmitted to a server &mdash; all processing occurs locally in your browser</li>
+      <li>No usage analytics, error logs, or behavioural tracking are embedded in any product</li>
+      <li>No cookies are set by the products themselves</li>
+    </ul>
+    <p><strong>What we do collect:</strong></p>
+    <ul>
+      <li>When you make a purchase, your email address and payment information are collected and processed by <strong>Lemon Squeezy</strong>, our payment processor. Flowtive receives only your email address and order confirmation for the purpose of fulfillment and customer support. Lemon Squeezy&rsquo;s privacy policy governs the handling of payment data</li>
+      <li>Standard server access logs (IP address, browser type, page visited) may be retained by our hosting provider (Cloudflare Workers) for security and operational purposes. These are not used for marketing</li>
+    </ul>
+    <p>By making a purchase, you consent to the collection and use of your email address for order fulfillment, receipt delivery, and customer support communications.</p>
+  </div>
+
+  <!-- 9 -->
+  <div class="tc-section" id="s9">
+    <span class="section-num">09</span>
+    <h2>Disclaimer of Warranties</h2>
+    <p>Flowtive products are provided <strong>&ldquo;as is&rdquo;</strong> and <strong>&ldquo;as available&rdquo;</strong> without warranty of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
+    <p>Flowtive does not warrant that:</p>
+    <ul>
+      <li>The products will be error-free or uninterrupted</li>
+      <li>The products will be compatible with every browser, operating system, or device</li>
+      <li>Any errors or defects will be corrected, although we will make reasonable efforts to do so</li>
+    </ul>
+    <p>Your use of any Flowtive product is entirely at your own risk. You are solely responsible for ensuring the suitability of the product for your intended use and for maintaining appropriate backups of any data.</p>
+  </div>
+
+  <!-- 10 -->
+  <div class="tc-section" id="s10">
+    <span class="section-num">10</span>
+    <h2>Limitation of Liability</h2>
+    <p>To the maximum extent permitted by applicable law, Flowtive and its creator shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of, or inability to use, any Flowtive product &mdash; including but not limited to loss of data, loss of revenue, or loss of business opportunity.</p>
+    <p>In no event shall Flowtive&rsquo;s total liability to you for any claim arising out of or relating to these Terms exceed the amount you paid for the product giving rise to the claim (or, for free products, zero dollars).</p>
+    <p>Some jurisdictions do not allow the exclusion or limitation of certain damages. If you reside in such a jurisdiction, the above limitations may not apply to you in their entirety.</p>
+  </div>
+
+  <!-- 11 -->
+  <div class="tc-section" id="s11">
+    <span class="section-num">11</span>
+    <h2>Changes to These Terms</h2>
+    <p>Flowtive reserves the right to modify these Terms &amp; Conditions at any time. When we do, we will update the &ldquo;Last updated&rdquo; date at the top of this page. Continued use of the Site or products after any modification constitutes your acceptance of the revised terms.</p>
+    <p>For material changes that affect existing purchasers (such as changes to the refund policy), we will make reasonable efforts to notify affected users via their purchase email address.</p>
+  </div>
+
+  <!-- 12 -->
+  <div class="tc-section" id="s12">
+    <span class="section-num">12</span>
+    <h2>Contact</h2>
+    <p>If you have any questions about these Terms &amp; Conditions, a dispute regarding a purchase, or a refund request, please contact us:</p>
+    <div class="highlight-box">
+      <p>
+        <strong>Flowtive</strong><br/>
+        Email: <a href="mailto:thelastride1825@gmail.com" style="color:var(--ac)">thelastride1825@gmail.com</a><br/>
+        Website: <a href="https://flowtive.ariestayyab46845.workers.dev" style="color:var(--ac)">flowtive.ariestayyab46845.workers.dev</a><br/>
+        LinkedIn: <a href="https://www.linkedin.com/in/mt883" style="color:var(--ac)">linkedin.com/in/mt883</a>
+      </p>
+    </div>
+    <p>We aim to respond to all inquiries within 2 business days.</p>
+  </div>
+
+</div>
+
+<footer style="border-top:1px solid var(--bd);padding:32px 28px;max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+  <span>&copy; 2026 Flowtive. All rights reserved.</span>
+  <a href="/" style="font-size:13px;color:rgba(240,244,255,0.4);text-decoration:none;">&larr; Back to Flowtive</a>
+</footer>
+
+</body>
+</html>
