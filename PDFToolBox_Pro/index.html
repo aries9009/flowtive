@@ -290,7 +290,7 @@ select.input{cursor:pointer}
     <div class="lic-logo">P</div>
     <div class="lic-title">PDFToolbox Pro</div>
     <div class="lic-sub">Enter your license key to activate.<br/>Your files always stay on your device.</div>
-    <input class="lic-input" id="licKey" placeholder="PDFT-XXXX-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off" spellcheck="false"/>
+    <input class="lic-input" id="licKey" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" maxlength="36" autocomplete="off" spellcheck="false"/>
     <div class="lic-error" id="licErr"></div>
     <button class="lic-btn" id="licBtn">Activate</button>
     <div class="lic-footer">
@@ -545,7 +545,7 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════════════════════════
    CONFIG — replace with your Cloudflare Worker URL
    ═══════════════════════════════════════════════════════════ */
-const WORKER_URL = 'https://pdftoolbox-licenses.ariestayyab46845.workers.dev';
+const LS_API = 'https://api.lemonsqueezy.com/v1/licenses';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const{PDFDocument,degrees,rgb,StandardFonts}=PDFLib;
@@ -585,26 +585,33 @@ async function checkLicense(){
   // Verify integrity hash
   const expectedHash=await makeVerifyHash(stored.key,stored.fp);
   if(expectedHash!==stored.hash){localStorage.removeItem('pdft_lic');return false;}
-  // Not expired?
+  // Not expired locally — skip network call
   if(stored.exp>Date.now())return true;
-  // Re-verify with server
+  // Re-validate with Lemon Squeezy
   try{
-    const r=await fetch(`${WORKER_URL}/verify`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({key:stored.key,fp,token:stored.token})});
+    const body=new URLSearchParams({license_key:stored.key,instance_id:stored.instanceId});
+    const r=await fetch(`${LS_API}/validate`,{method:'POST',headers:{'Accept':'application/json'},body});
     const j=await r.json();
-    if(j.ok){stored.token=j.token;stored.exp=j.exp;localStorage.setItem('pdft_lic',JSON.stringify(stored));return true;}
+    if(j.valid){
+      stored.exp=Date.now()+7*24*60*60*1000;
+      localStorage.setItem('pdft_lic',JSON.stringify(stored));
+      return true;
+    }
   }catch(e){}
   return false;
 }
 
 async function activateLicense(key){
   const fp=await getFingerprint();
-  const r=await fetch(`${WORKER_URL}/activate`,{method:'POST',
-    headers:{'Content-Type':'application/json'},body:JSON.stringify({key,fp})});
+  const body=new URLSearchParams({license_key:key,instance_name:fp.slice(0,40)});
+  const r=await fetch(`${LS_API}/activate`,{method:'POST',headers:{'Accept':'application/json'},body});
   const j=await r.json();
-  if(!j.ok)throw new Error(j.error||'Activation failed');
+  if(!j.activated)throw new Error(j.error||'Invalid license key. Please check and try again.');
   const hash=await makeVerifyHash(key,fp);
-  localStorage.setItem('pdft_lic',JSON.stringify({key,fp,token:j.token,exp:j.exp,hash}));
+  localStorage.setItem('pdft_lic',JSON.stringify({
+    key,fp,instanceId:j.instance.id,
+    exp:Date.now()+7*24*60*60*1000,hash
+  }));
   return true;
 }
 
@@ -639,8 +646,16 @@ $('#licKey').addEventListener('input',()=>{
   let v=$('#licKey').value.toUpperCase().replace(/[^A-Z0-9-]/g,'');
   $('#licKey').value=v;
 });
-$('#deactivateLink').addEventListener('click',()=>{
+$('#deactivateLink').addEventListener('click',async()=>{
   if(confirm('Remove license from this device?')){
+    const raw=localStorage.getItem('pdft_lic');
+    if(raw){
+      try{
+        const stored=JSON.parse(raw);
+        const body=new URLSearchParams({license_key:stored.key,instance_id:stored.instanceId});
+        await fetch(`${LS_API}/deactivate`,{method:'POST',headers:{'Accept':'application/json'},body});
+      }catch(e){}
+    }
     localStorage.removeItem('pdft_lic');location.reload();
   }
 });
